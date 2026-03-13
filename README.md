@@ -1,4 +1,4 @@
-![Contribution Painter](https://raw.githubusercontent.com/readme-SVG/Contribution-Painter/main/images/contribution_painter.svg)
+![Contribution Painter](https://raw.githubusercontent.com/readme-SVG/Contribution-Painter/main/images/contribution_painter_loop.svg)
 
 > Turn your GitHub contribution graph into pixel-art by generating backdated commits from a web UI.
 
