@@ -121,7 +121,7 @@ function rebuildGraph(){
 }
 
 function resolveLevel(){
-  if(selLevel === 5) return Math.floor(Math.random() * 4) + 1;
+  if(selLevel === 5) return Math.floor(Math.random() * 5);
   return selLevel;
 }
 
