@@ -309,7 +309,7 @@ document.addEventListener('mouseup', ()=>isDown=false);
 document.getElementById('multiplier').addEventListener('change', updateStats);
 
 document.getElementById('clearBtn').addEventListener('click',()=>{
-  grid = Array(COLS*ROWS).fill(0);
+  grid = Array(totalCols*ROWS).fill(0);
   document.querySelectorAll('.cell:not(.out)').forEach(c=>c.style.background=COLORS[0]);
   updateStats(); setStatus('');
 });
@@ -368,7 +368,7 @@ async function doPush(){
 
   // build commit list
   const commits = [];
-  for(let c=0; c<COLS; c++){
+  for(let c=0; c<totalCols; c++){
     for(let r=0; r<ROWS; r++){
       const level = grid[c*ROWS+r];
       if(!level) continue;
