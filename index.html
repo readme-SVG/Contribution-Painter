@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>GitHub Graph Generator</title>
+<style>
+  body {
+    background-color: #0d1117;
+    color: #c9d1d9;
+    font-family: Arial, sans-serif;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 20px;
+  }
+  .controls {
+    margin-bottom: 20px;
+  }
+  .grid {
+    display: grid;
+    grid-template-columns: repeat(52, 15px);
+    grid-template-rows: repeat(7, 15px);
+    grid-auto-flow: column;
+    gap: 3px;
+    background-color: #161b22;
+    padding: 10px;
+    border-radius: 6px;
+    border: 1px solid #30363d;
+  }
+  .cell {
+    width: 15px;
+    height: 15px;
+    background-color: #21262d;
+    border-radius: 2px;
+    cursor: pointer;
+  }
+  .cell.active {
+    background-color: #39d353;
+  }
+  textarea {
+    width: 800px;
+    height: 200px;
+    margin-top: 20px;
+    background-color: #0d1117;
+    color: #c9d1d9;
+    border: 1px solid #30363d;
+    padding: 10px;
+    font-family: monospace;
+  }
+  button {
+    background-color: #238636;
+    color: #ffffff;
+    border: none;
+    padding: 8px 16px;
+    border-radius: 6px;
+    cursor: pointer;
+    font-weight: bold;
+  }
+</style>
+</head>
+<body>
+
+  <div class="controls">
+    <label>Start Date (Sunday): <input type="date" id="startDate" value="1997-01-05"></label>
+    <button id="generate">Generate Script</button>
+  </div>
+
+  <div class="grid" id="grid"></div>
+
+  <textarea id="output" readonly></textarea>
+
+  <script>
+    const grid = document.getElementById('grid');
+    const cells = [];
+
+    for (let col = 0; col < 52; col++) {
+      for (let row = 0; row < 7; row++) {
+        const cell = document.createElement('div');
+        cell.className = 'cell';
+        cell.dataset.col = col;
+        cell.dataset.row = row;
+        
+        cell.addEventListener('click', () => {
+          cell.classList.toggle('active');
+        });
+        
+        grid.appendChild(cell);
+        cells.push(cell);
+      }
+    }
+
+    document.getElementById('generate').addEventListener('click', () => {
+      const startDateInput = document.getElementById('startDate').value;
+      const start = new Date(startDateInput + 'T12:00:00');
+      let script = "#!/bin/bash\n\n";
+      
+      cells.forEach(cell => {
+        if (cell.classList.contains('active')) {
+          const col = parseInt(cell.dataset.col);
+          const row = parseInt(cell.dataset.row);
+          const daysOffset = (col * 7) + row;
+          
+          const commitDate = new Date(start);
+          commitDate.setDate(start.getDate() + daysOffset);
+          
+          const year = commitDate.getFullYear();
+          const month = String(commitDate.getMonth() + 1).padStart(2, '0');
+          const day = String(commitDate.getDate()).padStart(2, '0');
+          const dateString = `${year}-${month}-${day}T12:00:00`;
+          
+          script += `echo "pixel" >> pattern.txt\n`;
+          script += `git add pattern.txt\n`;
+          script += `GIT_AUTHOR_DATE="${dateString}" GIT_COMMITTER_DATE="${dateString}" git commit -m "Draw pixel"\n\n`;
+        }
+      });
+      
+      script += "git push origin main --force\n";
+      document.getElementById('output').value = script;
+    });
+  </script>
+</body>
+</html>
