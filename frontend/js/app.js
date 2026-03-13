@@ -1,84 +1,19 @@
 // ── i18n ──
-const I18N = {
-  en: {
-    settings:'Settings', token_label:'GitHub Token',
-    repo_label:'Repository', repo_hint:'Must exist and have at least one commit (README).',
-    email_label:'Email (same as on GitHub)',
-    gitname_label:'Name (git)', branch_label:'Branch',
-    mult_label:'Commit multiplier', mult_1:'×1 — minimum', mult_5:'×5 — recommended', mult_10:'×10 — saturated',
-    year_title:'Year', year_hint:'The graph covers the entire selected year',
-    editor_title:'Editor', intensity:'Intensity:', legend_hint:'keys 0\u20134 \u00a0|\u00a0 click and drag',
-    btn_clear:'Clear', btn_fill:'Fill all', btn_invert:'Invert', btn_push:'\u25b6 Apply to GitHub',
-    days_painted:'Days painted:', commits:'Commits:', period:'Period:',
-    alert_token:'Enter your GitHub token',
-    alert_repo:'Enter repository as username/repo',
-    alert_email:"Enter email \u2014 must match your GitHub account email",
-    alert_empty:'Draw something on the grid first',
-    log_checking:'Checking repository...',
-    log_found:'\u2713 Repo found:', log_branch_ok:'\u2713 Branch found:',
-    log_branch_new:'Branch not found \u2014 will create new',
-    log_blob:'Creating blob...', log_commits:'Creating commits...',
-    log_updating:'Updating branch...', log_done:'\u2713 Done! \u2192',
-    log_error:'\u2717 Error:', status_done:'\u2713 Done! Pattern applied \u2192', status_error:'Error:',
-    footer_star:'Star on GitHub', footer_issues:'GitHub Issues',
-    footer_thanks:'If this tool saved you time \u2014 a \u2b50 means a lot!',
-    hint_token:'<a href="https://github.com/settings/tokens/new?scopes=repo" target="_blank">Create token</a> \u2014 check the <b>repo</b> scope.',
-    hint_email:'<a href="https://github.com/settings/emails" target="_blank">Check email</a> \u2014 must match, otherwise the graph won\u2019t update.'
-  },
-  ru: {
-    settings:'\u041d\u0430\u0441\u0442\u0440\u043e\u0439\u043a\u0438', token_label:'GitHub Token',
-    repo_label:'\u0420\u0435\u043f\u043e\u0437\u0438\u0442\u043e\u0440\u0438\u0439', repo_hint:'\u0414\u043e\u043b\u0436\u0435\u043d \u0441\u0443\u0449\u0435\u0441\u0442\u0432\u043e\u0432\u0430\u0442\u044c \u0438 \u0441\u043e\u0434\u0435\u0440\u0436\u0430\u0442\u044c \u0445\u043e\u0442\u044f \u0431\u044b \u043e\u0434\u0438\u043d \u043a\u043e\u043c\u043c\u0438\u0442 (README).',
-    email_label:'Email (\u043a\u0430\u043a \u043d\u0430 GitHub)',
-    gitname_label:'\u0418\u043c\u044f (git)', branch_label:'\u0412\u0435\u0442\u043a\u0430',
-    mult_label:'\u041c\u043d\u043e\u0436\u0438\u0442\u0435\u043b\u044c', mult_1:'\xd71 \u2014 \u043c\u0438\u043d\u0438\u043c\u0443\u043c', mult_5:'\xd75 \u2014 \u0440\u0435\u043a\u043e\u043c\u0435\u043d\u0434\u0443\u044e', mult_10:'\xd710 \u2014 \u043d\u0430\u0441\u044b\u0449\u0435\u043d\u043d\u043e',
-    year_title:'\u0413\u043e\u0434', year_hint:'\u0413\u0440\u0430\u0444 \u043e\u0442\u043e\u0431\u0440\u0430\u0436\u0430\u0435\u0442 \u0432\u0435\u0441\u044c \u0432\u044b\u0431\u0440\u0430\u043d\u043d\u044b\u0439 \u0433\u043e\u0434',
-    editor_title:'\u0420\u0435\u0434\u0430\u043a\u0442\u043e\u0440', intensity:'\u0418\u043d\u0442\u0435\u043d\u0441\u0438\u0432\u043d\u043e\u0441\u0442\u044c:', legend_hint:'\u043a\u043b\u0430\u0432\u0438\u0448\u0438 0\u20134 \u00a0|\u00a0 \u0437\u0430\u0436\u043c\u0438 \u0438 \u0432\u0435\u0434\u0438',
-    btn_clear:'\u041e\u0447\u0438\u0441\u0442\u0438\u0442\u044c', btn_fill:'\u0417\u0430\u043b\u0438\u0442\u044c \u0432\u0441\u0451', btn_invert:'\u0418\u043d\u0432\u0435\u0440\u0442\u0438\u0440\u043e\u0432\u0430\u0442\u044c', btn_push:'\u25b6 \u041f\u0440\u0438\u043c\u0435\u043d\u0438\u0442\u044c \u043d\u0430 GitHub',
-    days_painted:'\u0417\u0430\u043a\u0440\u0430\u0448\u0435\u043d\u043e \u0434\u043d\u0435\u0439:', commits:'\u041a\u043e\u043c\u043c\u0438\u0442\u043e\u0432:', period:'\u041f\u0435\u0440\u0438\u043e\u0434:',
-    alert_token:'\u0412\u0432\u0435\u0434\u0438 GitHub \u0442\u043e\u043a\u0435\u043d',
-    alert_repo:'\u0412\u0432\u0435\u0434\u0438 \u0440\u0435\u043f\u043e\u0437\u0438\u0442\u043e\u0440\u0438\u0439 \u0432 \u0444\u043e\u0440\u043c\u0430\u0442\u0435 username/repo',
-    alert_email:'\u0412\u0432\u0435\u0434\u0438 email \u2014 \u043e\u043d \u0434\u043e\u043b\u0436\u0435\u043d \u0441\u043e\u0432\u043f\u0430\u0434\u0430\u0442\u044c \u0441 email \u0432 \u043d\u0430\u0441\u0442\u0440\u043e\u0439\u043a\u0430\u0445 GitHub',
-    alert_empty:'\u041d\u0430\u0440\u0438\u0441\u0443\u0439 \u0447\u0442\u043e-\u043d\u0438\u0431\u0443\u0434\u044c \u043d\u0430 \u0441\u0435\u0442\u043a\u0435',
-    log_checking:'\u041f\u0440\u043e\u0432\u0435\u0440\u044f\u0435\u043c \u0440\u0435\u043f\u043e\u0437\u0438\u0442\u043e\u0440\u0438\u0439...',
-    log_found:'\u2713 \u0420\u0435\u043f\u043e \u043d\u0430\u0439\u0434\u0435\u043d\u043e:', log_branch_ok:'\u2713 \u0412\u0435\u0442\u043a\u0430 \u043d\u0430\u0439\u0434\u0435\u043d\u0430:',
-    log_branch_new:'\u0412\u0435\u0442\u043a\u0430 \u043d\u0435 \u043d\u0430\u0439\u0434\u0435\u043d\u0430 \u2014 \u0441\u043e\u0437\u0434\u0430\u0434\u0438\u043c \u043d\u043e\u0432\u0443\u044e',
-    log_blob:'\u0421\u043e\u0437\u0434\u0430\u0451\u043c blob...', log_commits:'\u0421\u043e\u0437\u0434\u0430\u0451\u043c \u043a\u043e\u043c\u043c\u0438\u0442\u044b...',
-    log_updating:'\u041e\u0431\u043d\u043e\u0432\u043b\u044f\u0435\u043c \u0432\u0435\u0442\u043a\u0443...', log_done:'\u2713 \u0413\u043e\u0442\u043e\u0432\u043e! \u2192',
-    log_error:'\u2717 \u041e\u0448\u0438\u0431\u043a\u0430:', status_done:'\u2713 \u0413\u043e\u0442\u043e\u0432\u043e! \u041f\u0430\u0442\u0442\u0435\u0440\u043d \u043f\u0440\u0438\u043c\u0435\u043d\u0451\u043d \u2192', status_error:'\u041e\u0448\u0438\u0431\u043a\u0430:',
-    footer_star:'\u041f\u043e\u0441\u0442\u0430\u0432\u044c \u0437\u0432\u0435\u0437\u0434\u0443 \u043d\u0430 GitHub', footer_issues:'GitHub Issues',
-    footer_thanks:'\u0415\u0441\u043b\u0438 \u0438\u043d\u0441\u0442\u0440\u0443\u043c\u0435\u043d\u0442 \u043f\u043e\u043c\u043e\u0433 \u2014 \u2b50 \u043c\u043d\u043e\u0433\u043e \u0437\u043d\u0430\u0447\u0438\u0442!',
-    hint_token:'<a href="https://github.com/settings/tokens/new?scopes=repo" target="_blank">\u0421\u043e\u0437\u0434\u0430\u0442\u044c \u0442\u043e\u043a\u0435\u043d</a> \u2014 \u043d\u0443\u0436\u043d\u0430 \u0433\u0430\u043b\u043e\u0447\u043a\u0430 <b>repo</b>.',
-    hint_email:'<a href="https://github.com/settings/emails" target="_blank">\u041f\u0440\u043e\u0432\u0435\u0440\u0438\u0442\u044c email</a> \u2014 \u0434\u043e\u043b\u0436\u0435\u043d \u0441\u043e\u0432\u043f\u0430\u0434\u0430\u0442\u044c, \u0438\u043d\u0430\u0447\u0435 \u0433\u0440\u0430\u0444 \u043d\u0435 \u043e\u0431\u043d\u043e\u0432\u0438\u0442\u0441\u044f.'
-  },
-  es: {
-    settings:'Configuraci\u00f3n', token_label:'Token de GitHub',
-    repo_label:'Repositorio', repo_hint:'Debe existir y tener al menos un commit (README).',
-    email_label:'Email (igual que en GitHub)',
-    gitname_label:'Nombre (git)', branch_label:'Rama',
-    mult_label:'Multiplicador de commits', mult_1:'\xd71 \u2014 m\u00ednimo', mult_5:'\xd75 \u2014 recomendado', mult_10:'\xd710 \u2014 saturado',
-    year_title:'A\u00f1o', year_hint:'El gr\u00e1fico cubre todo el a\u00f1o seleccionado',
-    editor_title:'Editor', intensity:'Intensidad:', legend_hint:'teclas 0\u20134 \u00a0|\u00a0 clic y arrastra',
-    btn_clear:'Limpiar', btn_fill:'Rellenar todo', btn_invert:'Invertir', btn_push:'\u25b6 Aplicar en GitHub',
-    days_painted:'D\u00edas pintados:', commits:'Commits:', period:'Per\u00edodo:',
-    alert_token:'Ingresa tu token de GitHub',
-    alert_repo:'Ingresa el repositorio como usuario/repo',
-    alert_email:'Ingresa el email \u2014 debe coincidir con tu cuenta de GitHub',
-    alert_empty:'Dibuja algo en la cuadr\u00edcula primero',
-    log_checking:'Verificando repositorio...',
-    log_found:'\u2713 Repo encontrado:', log_branch_ok:'\u2713 Rama encontrada:',
-    log_branch_new:'Rama no encontrada \u2014 se crear\u00e1 nueva',
-    log_blob:'Creando blob...', log_commits:'Creando commits...',
-    log_updating:'Actualizando rama...', log_done:'\u2713 \u00a1Listo! \u2192',
-    log_error:'\u2717 Error:', status_done:'\u2713 \u00a1Listo! Patr\u00f3n aplicado \u2192', status_error:'Error:',
-    footer_star:'Dar estrella en GitHub', footer_issues:'Reportar issue',
-    footer_thanks:'\u00a1Si esta herramienta te ahorr\u00f3 tiempo, una \u2b50 significa mucho!',
-    hint_token:'<a href="https://github.com/settings/tokens/new?scopes=repo" target="_blank">Crear token</a> \u2014 activa el permiso <b>repo</b>.',
-    hint_email:'<a href="https://github.com/settings/emails" target="_blank">Verificar email</a> \u2014 debe coincidir, de lo contrario el gr\u00e1fico no se actualizar\u00e1.'
-  }
-};
+const i18n = window.I18N.createI18n('en-US');
+let lang = 'en-US';
 
-let lang = 'en';
-function t(k){ return (I18N[lang]||I18N.en)[k] || k; }
+function t(k){ return i18n.t(k); }
+
+function detectInitialLocale(){
+  const browserLocale = navigator.language || 'en-US';
+  const available = new Set(i18n.availableLocales);
+  if(available.has(browserLocale)) return browserLocale;
+  const base = browserLocale.split('-')[0];
+  for(const code of i18n.availableLocales){
+    if(code.split('-')[0] === base) return code;
+  }
+  return 'en-US';
+}
 
 function applyLang(){
   document.querySelectorAll('[data-i18n]').forEach(el=>{
@@ -89,10 +24,12 @@ function applyLang(){
   document.querySelector('#multiplier option[value="1"]').textContent = t('mult_1');
   document.querySelector('#multiplier option[value="5"]').textContent = t('mult_5');
   document.querySelector('#multiplier option[value="10"]').textContent = t('mult_10');
+  updateStats();
 }
 
 document.getElementById('langSelect').addEventListener('change', e=>{
   lang = e.target.value;
+  i18n.setLocale(lang);
   applyLang();
 });
 
@@ -149,7 +86,7 @@ function rebuildGraph(){
     const d = new Date(startDate);
     d.setDate(d.getDate() + c * 7);
     const span = document.createElement('span');
-    if(d.getMonth() !== lastM){ span.textContent = d.toLocaleString('en',{month:'short'}); lastM = d.getMonth(); }
+    if(d.getMonth() !== lastM){ span.textContent = d.toLocaleString(lang,{month:'short'}); lastM = d.getMonth(); }
     monthsEl.appendChild(span);
   }
 
@@ -196,7 +133,7 @@ function updateStats(){
   document.getElementById('sDays').textContent = grid.filter(v=>v>0).length;
   document.getElementById('sCommits').textContent = grid.reduce((a,v)=>a+v*mult,0).toLocaleString();
   const end = new Date(startDate); end.setDate(end.getDate() + totalCols * 7 - 1);
-  const fmt = d => d.toLocaleDateString('en',{day:'numeric',month:'short',year:'numeric'});
+  const fmt = d => d.toLocaleDateString(lang,{day:'numeric',month:'short',year:'numeric'});
   document.getElementById('sPeriod').textContent = fmt(startDate) + ' \u2014 ' + fmt(end);
 }
 
@@ -354,4 +291,8 @@ async function doPush(){
 document.getElementById('pushBtn').addEventListener('click', doPush);
 
 // ── Init ──
+lang = detectInitialLocale();
+i18n.setLocale(lang);
+document.getElementById('langSelect').value = lang;
 setYear(new Date().getFullYear());
+applyLang();
