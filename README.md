@@ -4,7 +4,7 @@
 
 [![License: GPL-3.0](https://img.shields.io/badge/License-GPL--3.0-blue?style=for-the-badge)](LICENSE)
 [![Python](https://img.shields.io/badge/Python-3.11%2B-3776AB?style=for-the-badge&logo=python&logoColor=white)](requirements.txt)
-[![Frontend](https://img.shields.io/badge/Frontend-Vanilla%20JS-323330?style=for-the-badge&logo=javascript)](frontend/js/app.js)
+[![Frontend](https://img.shields.io/badge/Frontend-Vanilla%20JS-323330?style=for-the-badge&logo=javascript)](js/app.js)
 [![Deploy](https://img.shields.io/badge/Deploy-Vercel-000000?style=for-the-badge&logo=vercel)](vercel.json)
 [![Workflow](https://img.shields.io/badge/GitHub%20Actions-AI%20Issue%20Generator-2088FF?style=for-the-badge&logo=githubactions)](.github/workflows/ai-issue.yml)
 
@@ -67,17 +67,16 @@ Contribution Painter is built for devs who want deterministic control over contr
 ```text
 .
 ├── index.html                     # Main web app entrypoint
-├── frontend/
-│   ├── css/styles.css             # UI styles
-│   └── js/
-│       ├── app.js                 # Painter logic + GitHub API workflow
-│       └── i18n/*.js              # Localization dictionaries
-├── backend/process_event.py       # AI-powered GitHub issue generator workflow script
+├── css/styles.css               # UI styles
+├── js/
+│   ├── app.js                     # Painter logic + GitHub API workflow
+│   └── i18n/*.js                  # Localization dictionaries
+├── process_event.py               # AI-powered GitHub issue generator workflow script
 ├── .github/
-│   ├── workflows/ai-issue.yml     # CI workflow invoking backend script
+│   ├── workflows/ai-issue.yml     # CI workflow invoking automation script
 │   ├── ISSUE_TEMPLATE/            # Bug/feature templates
 │   └── pull_request_template.md   # PR checklist template
-├── requirements.txt               # Python dependencies for backend automation
+├── requirements.txt               # Python dependencies for automation
 ├── vercel.json                    # Static hosting routing and headers
 └── LICENSE                        # GPL-3.0 license
 ```
@@ -89,9 +88,6 @@ Contribution Painter is built for devs who want deterministic control over contr
 - The contribution editor maps to a week-column x weekday-row matrix to mirror GitHub contribution graph semantics.
 - i18n dictionaries are split per locale to keep translation churn isolated and avoid monolithic translation files.
 - CI analysis is decoupled from frontend runtime; automation lives in Python to leverage mature GitHub SDK ergonomics.
-
-> [!NOTE]
-> The workflow script currently references `process_event.py` from repo root in CI. In this repository layout, the script lives under `backend/process_event.py`, so adjust the workflow command if needed.
 
 ## Getting Started
 
@@ -115,7 +111,7 @@ Install these tools first:
 git clone https://github.com/readme-SVG/Contribution-Painter.git
 cd Contribution-Painter
 
-# 2) Set up Python environment (for backend workflow script and local checks)
+# 2) Set up Python environment (for automation script and local checks)
 python3 -m venv .venv
 source .venv/bin/activate
 pip install -r requirements.txt
@@ -133,18 +129,18 @@ This project is lightweight and does not currently ship with a formal unit/integ
 
 ```bash
 # Python syntax check for backend automation
-python3 -m py_compile backend/process_event.py
+python3 -m py_compile process_event.py
 
 # Optional: quick dependency sanity
 python3 -m pip check
 
 # Optional: run script help/debug in controlled env
 # (requires env vars like GITHUB_TOKEN, GH_MODELS_TOKEN)
-python3 backend/process_event.py
+python3 process_event.py
 ```
 
 > [!WARNING]
-> Running `backend/process_event.py` without required environment variables will fail by design.
+> Running `process_event.py` without required environment variables will fail by design.
 
 ## Deployment
 
@@ -204,7 +200,7 @@ python3 -m http.server 8080
 - `Commit multiplier` (scales commit volume per painted intensity)
 - `Year` (drives graph date range)
 
-### Workflow Environment Variables (for `backend/process_event.py`)
+### Workflow Environment Variables (for `process_event.py`)
 
 - `GITHUB_TOKEN` – GitHub Actions token used by workflow.
 - `REPOSITORY` – target repository identifier.

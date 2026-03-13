@@ -37,7 +37,7 @@ When opening a bug Issue, include:
 - **Environment**
   - OS + version (e.g. Ubuntu 24.04, macOS 14, Windows 11)
   - Browser + version (for UI bugs)
-  - Python version (for backend/workflow bugs)
+  - Python version (for automation/workflow bugs)
   - App version/commit SHA
 - **Steps to Reproduce**
   - exact sequence from clean state
@@ -85,7 +85,7 @@ python3 -m http.server 8080
 # open http://localhost:8080
 ```
 
-If environment variables are needed for workflow script tests, export them before running `backend/process_event.py`.
+If environment variables are needed for workflow script tests, export them before running `process_event.py`.
 
 ## Pull Request Process
 
@@ -144,7 +144,7 @@ Use `.github/pull_request_template.md` as baseline and fill it properly.
 
 ### JavaScript / Frontend
 
-- Stick to existing vanilla JS style in `frontend/js/app.js`.
+- Stick to existing vanilla JS style in `js/app.js`.
 - Maintain i18n key consistency across locale files.
 - Avoid introducing framework dependencies unless discussed first.
 
@@ -166,7 +166,7 @@ Recommended checks:
 
 ```bash
 # Backend syntax check
-python3 -m py_compile backend/process_event.py
+python3 -m py_compile process_event.py
 
 # Dependency sanity
 python3 -m pip check
