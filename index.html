@@ -244,24 +244,24 @@
 
   <div class="footer">
     <div class="footer-left">
-      <a class="footer-link star" href="https://github.com/readme-SVG/graph-art-generator" target="_blank">
+      <a class="footer-link star" href="https://github.com/readme-SVG/Contribution-Painter" target="_blank">
         <svg width="14" height="14" viewBox="0 0 16 16" fill="currentColor">
           <path d="M8 .25a.75.75 0 01.673.418l1.882 3.815 4.21.612a.75.75 0 01.416 1.279l-3.046 2.97.719 4.192a.75.75 0 01-1.088.791L8 12.347l-3.766 1.98a.75.75 0 01-1.088-.79l.72-4.194L.818 6.374a.75.75 0 01.416-1.28l4.21-.611L7.327.668A.75.75 0 018 .25z"/>
         </svg>
         <span data-i18n="footer_star">Star on GitHub</span>
       </a>
-      <a class="footer-link" href="https://github.com/readme-SVG/graph-art-generator/issues" target="_blank">
+      <a class="footer-link" href="https://github.com/readme-SVG/Contribution-Painter/issues" target="_blank">
         <svg width="14" height="14" viewBox="0 0 16 16" fill="currentColor">
           <path d="M8 9.5a1.5 1.5 0 100-3 1.5 1.5 0 000 3z"/>
           <path fill-rule="evenodd" d="M8 0a8 8 0 100 16A8 8 0 008 0zM1.5 8a6.5 6.5 0 1113 0 6.5 6.5 0 01-13 0z"/>
         </svg>
         <span data-i18n="footer_issues">GitHub Issues</span>
       </a>
-      <a class="footer-link" href="https://github.com/readme-SVG/graph-art-generator/wiki" target="_blank">
+      <a class="footer-link" href="https://github.com/readme-SVG/Contribution-Painter/wiki" target="_blank">
         <svg width="14" height="14" viewBox="0 0 16 16" fill="currentColor">
           <path d="M1.75 1h8.5c.966 0 1.75.784 1.75 1.75v5.5A1.75 1.75 0 0110.25 10H7.061l-2.574 2.573A1.458 1.458 0 012 11.543V10h-.25A1.75 1.75 0 010 8.25v-5.5C0 1.784.784 1 1.75 1zM1.5 2.75v5.5c0 .138.112.25.25.25h1a.75.75 0 01.75.75v2.19l2.72-2.72a.749.749 0 01.53-.22h3.5a.25.25 0 00.25-.25v-5.5a.25.25 0 00-.25-.25h-8.5a.25.25 0 00-.25.25zm13 2a.25.25 0 00-.25-.25h-.5a.75.75 0 010-1.5h.5c.966 0 1.75.784 1.75 1.75v5.5A1.75 1.75 0 0114.25 12H14v1.543a1.458 1.458 0 01-2.487 1.03L9.22 12.28a.749.749 0 111.06-1.06l2.22 2.22v-2.19a.75.75 0 01.75-.75h.25a.25.25 0 00.25-.25v-5.5z"/>
         </svg>
-        readme-SVG / graph-art-wiki
+        readme-SVG / contribution-painter-wiki
       </a>
     </div>
     <div class="footer-right">
@@ -585,14 +585,14 @@ async function doPush(){
     }catch{ addLog(t('log_branch_new')); }
 
     addLog(t('log_blob'));
-    const blob = await api(token, 'POST', `/repos/${repo}/git/blobs`, { content:'github-painter\n', encoding:'utf-8' });
+    const blob = await api(token, 'POST', `/repos/${repo}/git/blobs`, { content:'This GitHub contribution graph art was generated using Contribution-Painter. Create your own at: https://github.com/readme-SVG/Contribution-Painter\n', encoding:'utf-8' });
 
     const total = commits.length;
     let done = 0, currentSha = baseSha, currentTree = baseTreeSha;
     addLog(`${t('log_commits')} ${total.toLocaleString()}`);
 
     for(const cm of commits){
-      const treePayload = { tree:[{ path:'pattern.txt', mode:'100644', type:'blob', sha:blob.sha }] };
+      const treePayload = { tree:[{ path:'contribution-painter.txt', mode:'100644', type:'blob', sha:blob.sha }] };
       if(currentTree) treePayload.base_tree = currentTree;
       const tree = await api(token, 'POST', `/repos/${repo}/git/trees`, treePayload);
       const newCommit = await api(token, 'POST', `/repos/${repo}/git/commits`, {
