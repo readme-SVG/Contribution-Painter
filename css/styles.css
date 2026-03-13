@@ -75,7 +75,9 @@
   .stat b { color: var(--text); font-weight: 600; }
 
   /* BUTTONS */
-  .btn-row { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 12px; }
+  .btn-row { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 12px; align-items: center; }
+  .fill-percent-control { display: inline-flex; align-items: center; gap: 6px; color: var(--text2); font-size: 12px; }
+  .fill-percent-control input { width: 70px; height: 34px; }
   button { height: 34px; padding: 0 16px; border-radius: 6px; font-size: 13px; font-weight: 500; cursor: pointer; border: 1px solid var(--border); background: var(--bg3); color: var(--text); transition: background .15s, opacity .15s; white-space: nowrap; }
   button:hover { background: #30363d; }
   button:disabled { opacity: .4; cursor: not-allowed; }

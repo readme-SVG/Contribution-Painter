@@ -134,6 +134,24 @@ function paint(cell){
   updateStats();
 }
 
+
+function getFillPercent(){
+  const input = document.getElementById('fillPercent');
+  const parsed = Number.parseFloat(input.value.replace(',', '.'));
+  const safe = Number.isFinite(parsed) ? Math.min(100, Math.max(0, parsed)) : 100;
+  input.value = `${safe}%`;
+  return safe;
+}
+
+function pickRandomCells(cells, count){
+  const pool = [...cells];
+  for(let i = pool.length - 1; i > 0; i--){
+    const j = Math.floor(Math.random() * (i + 1));
+    [pool[i], pool[j]] = [pool[j], pool[i]];
+  }
+  return pool.slice(0, count);
+}
+
 function updateStats(){
   const mult = +document.getElementById('multiplier').value;
   const isSpreadEnabled = document.getElementById('commitSpread').value === 'plus2';
@@ -171,11 +189,21 @@ document.getElementById('clearBtn').addEventListener('click', ()=>{
   updateStats(); setStatus('');
 });
 document.getElementById('fillBtn').addEventListener('click', ()=>{
-  document.querySelectorAll('.cell:not(.out)').forEach(c=>{
+  const fillPercent = getFillPercent();
+  const activeCells = [...document.querySelectorAll('.cell:not(.out)')];
+  const targetCount = Math.round(activeCells.length * (fillPercent / 100));
+  const picked = new Set(pickRandomCells(activeCells, targetCount));
+
+  activeCells.forEach(c=>{
     const i = +c.dataset.i;
-    const level = resolveLevel();
-    grid[i] = level;
-    c.style.background = COLORS[level];
+    if(picked.has(c)){
+      const level = resolveLevel();
+      grid[i] = level;
+      c.style.background = COLORS[level];
+      return;
+    }
+    grid[i] = 0;
+    c.style.background = COLORS[0];
   });
   updateStats();
 });
