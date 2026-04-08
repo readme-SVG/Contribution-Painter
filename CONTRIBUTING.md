@@ -1,188 +1,60 @@
-# Contributing to Contribution Painter
+<div align="left">
 
-First off: huge thanks for wanting to contribute. You’re helping improve a niche but super practical tool for contribution-graph automation and developer tooling workflows.
+<pre>
+ ██████╗ ██████╗ ███╗   ██╗████████╗██████╗ ██╗██████╗ ██╗   ██╗████████╗██╗███╗   ██╗ ██████╗ 
+██╔════╝██╔═══██╗████╗  ██║╚══██╔══╝██╔══██╗██║██╔══██╗██║   ██║╚══██╔══╝██║████╗  ██║██╔════╝ 
+██║     ██║   ██║██╔██╗ ██║   ██║   ██████╔╝██║██████╔╝██║   ██║   ██║   ██║██╔██╗ ██║██║  ███╗
+██║     ██║   ██║██║╚██╗██║   ██║   ██╔══██╗██║██╔══██╗██║   ██║   ██║   ██║██║╚██╗██║██║   ██║
+╚██████╗╚██████╔╝██║ ╚████║   ██║   ██║  ██║██║██████╔╝╚██████╔╝   ██║   ██║██║ ╚████║╚██████╔╝
+ ╚═════╝ ╚═════╝ ╚═╝  ╚═══╝   ╚═╝   ╚═╝  ╚═╝╚═╝╚═════╝  ╚═════╝    ╚═╝   ╚═╝╚═╝  ╚═══╝ ╚═════╝ 
+                                                                                               
+ ██████╗ ██╗   ██╗██╗██████╗ ███████╗
+██╔════╝ ██║   ██║██║██╔══██╗██╔════╝
+██║  ███╗██║   ██║██║██║  ██║█████╗  
+██║   ██║██║   ██║██║██║  ██║██╔══╝  
+╚██████╔╝╚██████╔╝██║██████╔╝███████╗
+ ╚═════╝  ╚═════╝ ╚═╝╚═════╝ ╚══════╝
+</pre>
 
-## Introduction
+</div>
 
-This project is intentionally lean: vanilla frontend, API-first GitHub integration, and automation scripts around repository maintenance. We value focused PRs, reproducible bug reports, and clean implementation details over noisy changes.
+[![PRs Welcome](https://img.shields.io/badge/PRs-welcome-3e80ed?style=for-the-badge&logo=github&logoColor=white)](https://github.com/OstinUA)
+[![Open Source](https://img.shields.io/badge/Open_Source-Yes-brightgreen?style=for-the-badge&logo=open-source&logoColor=white)](https://github.com/OstinUA)
+[![Views](https://img.shields.io/badge/Profile_Views-%31&#56;%33-blueviolet?style=for-the-badge)](https://github.com/OstinUA)
+![OstinUA](https://capsule-render.vercel.app/api?type=rect&color=3e80ed&height=2&)
 
-If you’re about to open your first PR: awesome. If you’re a returning contributor: welcome back, let’s ship.
 
-## I Have a Question
+Hello! Thank you for your interest in contributing to this project. I am always open to any help, whether it's fixing bugs, adding new features, improving documentation, or just sharing fresh ideas. 
 
-Please do **not** use GitHub Issues for usage/support questions.
+This document is not a strict set of rules, but a simple guide on how we can comfortably and productively work together.
 
-Issues are reserved for:
-- confirmed bugs
-- feature proposals
-- scoped technical tasks
+## ⬢ How You Can Help
 
-For questions, use one of these channels:
-- GitHub Discussions (preferred, if enabled)
-- Project-linked community channels from the README support section
-- Stack Overflow (`github-api`, `javascript`, `python`) for generic implementation questions
+* **Found a bug?** Open an Issue and briefly describe what went wrong and how to reproduce it.
+* **Have a cool idea?** Create an Issue with your proposal. It's always best to discuss an idea first before spending time writing code.
+* **Improving documentation.** Fixing typos, expanding instructions, or translating — absolutely any help is valuable.
+* **Ready to write code?** Feel free to fork the repository and open a Pull Request.
 
-If your “question” reveals a product bug, then open an Issue with a reproducible case.
+## ⬢ Pull Request Process
 
-## Reporting Bugs
+The workflow here is as straightforward as possible:
 
-Before opening a bug report:
+1. Fork this repository.
+2. Create a new branch for your changes (`git checkout -b feature/my-awesome-idea` or `git checkout -b bugfix/issue-123`).
+3. Make your changes and commit them (`git commit -m "Add new awesome feature"`).
+4. Push the changes to your fork (`git push origin feature/my-awesome-idea`).
+5. Open a Pull Request to this repository.
 
-1. Search existing open/closed Issues for duplicates.
-2. Verify the bug on latest `main`.
-3. Reproduce with minimal setup (ideally a clean repo and a fresh token).
+## ⬢ A Few Simple Requests
 
-When opening a bug Issue, include:
+* Try to stick to the code style already used in the project.
+* Make your commit messages clear so it's easy to understand what changed.
+* If your Pull Request resolves a specific Issue, mention its number in the description (e.g., `Closes #42`).
+* If the logic changes, please update the relevant section in the README.
 
-- **Environment**
-  - OS + version (e.g. Ubuntu 24.04, macOS 14, Windows 11)
-  - Browser + version (for UI bugs)
-  - Python version (for automation/workflow bugs)
-  - App version/commit SHA
-- **Steps to Reproduce**
-  - exact sequence from clean state
-  - input values used (mask sensitive tokens)
-- **Expected Behavior**
-  - what should happen
-- **Actual Behavior**
-  - what actually happens
-  - full error message/log output
-- **Artifacts**
-  - screenshots, console logs, network traces, workflow logs
+## ⬢ Feedback
 
-High-signal bug reports get fixed faster. Low-context reports usually bounce for clarification.
+I try to review all Issues and Pull Requests as quickly as possible. If I haven't replied in a while, don't hesitate to ping me in the comments.
 
-## Suggesting Enhancements
-
-Feature requests are welcome when they solve real user pain.
-
-A good enhancement proposal includes:
-
-- problem statement: what’s broken in current UX/dev flow
-- proposed change: concise and technically feasible
-- use cases: who benefits and how often
-- constraints/trade-offs: API limits, security implications, complexity cost
-
-Strong proposals are framed as impact + implementation strategy, not just “add X”.
-
-## Local Development / Setup
-
-```bash
-# 1) Fork repository on GitHub, then clone your fork
-git clone https://github.com/<your-username>/Contribution-Painter.git
-cd Contribution-Painter
-
-# 2) Add upstream remote
-git remote add upstream https://github.com/readme-SVG/Contribution-Painter.git
-
-# 3) Create Python env for backend tooling
-python3 -m venv .venv
-source .venv/bin/activate
-pip install -r requirements.txt
-
-# 4) Run frontend locally
-python3 -m http.server 8080
-# open http://localhost:8080
-```
-
-If environment variables are needed for workflow script tests, export them before running `process_event.py`.
-
-## Pull Request Process
-
-### Branch Naming Strategy
-
-Use predictable branch names:
-
-- `feature/<short-description>`
-- `bugfix/<issue-id-or-short-description>`
-- `docs/<scope>`
-- `chore/<scope>`
-
-Examples:
-- `feature/multi-repo-presets`
-- `bugfix/issue-42-branch-ref-handling`
-- `docs/readme-overhaul`
-
-### Commit Message Standard
-
-Use **Conventional Commits**:
-
-- `feat: add locale auto-detection fallback`
-- `fix: handle missing branch ref during push`
-- `docs: rewrite setup and deployment sections`
-- `chore: align workflow dependency versions`
-
-### Sync With Upstream Before PR
-
-```bash
-git fetch upstream
-git checkout main
-git rebase upstream/main
-```
-
-Then rebase your feature branch onto updated `main`.
-
-### PR Description Requirements
-
-Every PR should include:
-
-- what changed
-- why it changed
-- related issue (`Resolves #123` when applicable)
-- testing evidence (commands + output summary)
-- screenshots/GIFs for UI changes
-
-Use `.github/pull_request_template.md` as baseline and fill it properly.
-
-## Styleguides
-
-### General Standards
-
-- Keep changes scoped; avoid drive-by refactors.
-- Preserve project’s existing architecture and naming conventions.
-- Prefer explicit, readable logic over clever one-liners.
-
-### JavaScript / Frontend
-
-- Stick to existing vanilla JS style in `js/app.js`.
-- Maintain i18n key consistency across locale files.
-- Avoid introducing framework dependencies unless discussed first.
-
-### Python / Backend
-
-- Follow PEP 8 conventions.
-- Keep functions small and predictable.
-- Handle API failures explicitly and provide actionable logs.
-
-### Tooling
-
-There is currently no enforced formatter/linter pipeline in-repo. If you use local tools (e.g., `black`, `ruff`, `eslint`, `prettier`), do not introduce mass-formatting unrelated files in the same PR.
-
-## Testing
-
-All new behavior should be validated before opening a PR.
-
-Recommended checks:
-
-```bash
-# Backend syntax check
-python3 -m py_compile process_event.py
-
-# Dependency sanity
-python3 -m pip check
-
-# Frontend smoke test
-python3 -m http.server 8080
-# then manually verify painting, stats, and push flow in browser
-```
-
-If you add logic with deterministic behavior, include tests or at least scriptable reproduction steps.
-
-## Code Review Process
-
-- Maintainers review incoming PRs for correctness, scope, security, and maintainability.
-- At least one maintainer approval is expected before merge.
-- Address review comments with follow-up commits or clear technical reasoning.
-- Keep discussion technical and actionable; if you disagree, propose alternatives with trade-offs.
-
-Fast merges happen when PRs are small, tested, and clearly documented.
+The main rule is mutual respect. Welcome, and thank you for your contribution!
+![OstinUA](https://capsule-render.vercel.app/api?type=rect&color=3e80ed&height=2&)
