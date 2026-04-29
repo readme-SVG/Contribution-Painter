@@ -8,6 +8,8 @@
 [![Deploy](https://img.shields.io/badge/Deploy-Vercel-000000?style=for-the-badge&logo=vercel)](vercel.json)
 [![Workflow](https://img.shields.io/badge/GitHub%20Actions-AI%20Issue%20Generator-2088FF?style=for-the-badge&logo=githubactions)](.github/workflows/ai-issue.yml)
 
+https://github.com/user-attachments/assets/67bab512-b74e-492c-903a-81ea353b1811
+
 ## Table of Contents
 
 - [Features](#features)
