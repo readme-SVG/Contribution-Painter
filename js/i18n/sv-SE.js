@@ -28,6 +28,7 @@ window.I18N.registerLocale('sv-SE', {
   alert_token: 'Ange din GitHub token',
   alert_repo: 'Ange repository som username/repo',
   alert_email: 'Ange email — måste matcha ditt GitHub-konto',
+  alert_branch: 'Ange ett giltigt branchnamn',
   alert_empty: 'Rita något i rutnätet först',
   log_checking: 'Kontrollerar repository...',
   log_found: '✓ Repo hittades:',
@@ -43,6 +44,6 @@ window.I18N.registerLocale('sv-SE', {
   footer_star: 'Stjärna på GitHub',
   footer_issues: 'GitHub Issues',
   footer_thanks: 'Om verktyget sparade tid — en ⭐ betyder mycket!',
-  hint_token: '<a href="https://github.com/settings/tokens/new?scopes=repo" target="_blank">Skapa token</a> — aktivera <b>repo</b>-scope.',
-  hint_email: '<a href="https://github.com/settings/emails" target="_blank">Kontrollera email</a> — måste matcha, annars uppdateras inte grafen.'
+  hint_token: '<a href="https://github.com/settings/tokens/new?scopes=repo" target="_blank" rel="noopener noreferrer">Skapa token</a> — aktivera <b>repo</b>-scope.',
+  hint_email: '<a href="https://github.com/settings/emails" target="_blank" rel="noopener noreferrer">Kontrollera email</a> — måste matcha, annars uppdateras inte grafen.'
 });

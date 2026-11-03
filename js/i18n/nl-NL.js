@@ -28,6 +28,7 @@ window.I18N.registerLocale('nl-NL', {
   alert_token: 'Voer je GitHub token in',
   alert_repo: 'Voer repository in als username/repo',
   alert_email: 'Voer email in — moet overeenkomen met je GitHub-account',
+  alert_branch: 'Voer een geldige branchnaam in',
   alert_empty: 'Teken eerst iets op het raster',
   log_checking: 'Repository controleren...',
   log_found: '✓ Repo gevonden:',
@@ -43,6 +44,6 @@ window.I18N.registerLocale('nl-NL', {
   footer_star: 'Ster geven op GitHub',
   footer_issues: 'GitHub Issues',
   footer_thanks: 'Als deze tool je tijd bespaarde — ⭐ betekent veel!',
-  hint_token: '<a href="https://github.com/settings/tokens/new?scopes=repo" target="_blank">Token maken</a> — schakel de <b>repo</b> scope in.',
-  hint_email: '<a href="https://github.com/settings/emails" target="_blank">Email controleren</a> — moet overeenkomen, anders wordt de grafiek niet bijgewerkt.'
+  hint_token: '<a href="https://github.com/settings/tokens/new?scopes=repo" target="_blank" rel="noopener noreferrer">Token maken</a> — schakel de <b>repo</b> scope in.',
+  hint_email: '<a href="https://github.com/settings/emails" target="_blank" rel="noopener noreferrer">Email controleren</a> — moet overeenkomen, anders wordt de grafiek niet bijgewerkt.'
 });

@@ -28,6 +28,7 @@ window.I18N.registerLocale('ja-JP', {
   alert_token: 'GitHub token を入力してください',
   alert_repo: 'username/repo 形式で入力してください',
   alert_email: 'email を入力してください（GitHub アカウントと一致必須）',
+  alert_branch: '有効なブランチ名を入力してください',
   alert_empty: '先にグリッドへ描画してください',
   log_checking: 'リポジトリを確認中...',
   log_found: '✓ リポジトリを検出:',
@@ -43,6 +44,6 @@ window.I18N.registerLocale('ja-JP', {
   footer_star: 'GitHub でスター',
   footer_issues: 'GitHub Issues',
   footer_thanks: 'このツールが役立ったら、⭐ をお願いします！',
-  hint_token: '<a href="https://github.com/settings/tokens/new?scopes=repo" target="_blank">トークンを作成</a> — <b>repo</b> スコープを有効化してください。',
-  hint_email: '<a href="https://github.com/settings/emails" target="_blank">Email を確認</a> — 一致しないとグラフは更新されません。'
+  hint_token: '<a href="https://github.com/settings/tokens/new?scopes=repo" target="_blank" rel="noopener noreferrer">トークンを作成</a> — <b>repo</b> スコープを有効化してください。',
+  hint_email: '<a href="https://github.com/settings/emails" target="_blank" rel="noopener noreferrer">Email を確認</a> — 一致しないとグラフは更新されません。'
 });

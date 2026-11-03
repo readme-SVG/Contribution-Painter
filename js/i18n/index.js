@@ -37,11 +37,13 @@
   function createI18n(defaultCode = 'en-US'){
     validateLocales(defaultCode);
 
+    // Snapshot the locale list once — it is fixed after all files register.
+    const available = Object.freeze(Object.keys(locales));
     let activeCode = defaultCode;
 
     return {
       get locale(){ return activeCode; },
-      get availableLocales(){ return Object.keys(locales); },
+      get availableLocales(){ return available; },
       setLocale(code){
         activeCode = locales[code] ? code : defaultCode;
       },

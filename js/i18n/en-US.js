@@ -28,6 +28,7 @@ window.I18N.registerLocale('en-US', {
   alert_token: 'Enter your GitHub token',
   alert_repo: 'Enter repository as username/repo',
   alert_email: 'Enter email — must match your GitHub account email',
+  alert_branch: 'Enter a valid branch name',
   alert_empty: 'Draw something on the grid first',
   log_checking: 'Checking repository...',
   log_found: '✓ Repo found:',
@@ -43,6 +44,6 @@ window.I18N.registerLocale('en-US', {
   footer_star: 'Star on GitHub',
   footer_issues: 'GitHub Issues',
   footer_thanks: 'If this tool saved you time — a ⭐ means a lot!',
-  hint_token: '<a href="https://github.com/settings/tokens/new?scopes=repo" target="_blank">Create token</a> — check the <b>repo</b> scope.',
-  hint_email: '<a href="https://github.com/settings/emails" target="_blank">Check email</a> — must match, otherwise the graph won’t update.'
+  hint_token: '<a href="https://github.com/settings/tokens/new?scopes=repo" target="_blank" rel="noopener noreferrer">Create token</a> — check the <b>repo</b> scope.',
+  hint_email: '<a href="https://github.com/settings/emails" target="_blank" rel="noopener noreferrer">Check email</a> — must match, otherwise the graph won’t update.'
 });

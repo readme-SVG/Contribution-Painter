@@ -17,12 +17,13 @@ jobs:
 
     steps:
       - name: Checkout
-        uses: actions/checkout@v7
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           ref: ${{ github.head_ref }}
+          persist-credentials: false
 
       - name: Setup Node.js
-        uses: actions/setup-node@v7
+        uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7
         with:
           node-version: '20'
 
@@ -50,10 +51,15 @@ jobs:
 
       - name: Validate JavaScript syntax
         run: |
-          if [ -d api ]; then
-            while IFS= read -r -d '' file; do
-              node --check "$file"
-            done < <(find api -type f -name '*.js' -print0)
-          else
-            echo "No api/ directory found. Skipping JavaScript syntax validation."
+          found=0
+          for dir in api js; do
+            if [ -d "$dir" ]; then
+              found=1
+              while IFS= read -r -d '' file; do
+                node --check "$file"
+              done < <(find "$dir" -type f -name '*.js' -print0)
+            fi
+          done
+          if [ "$found" -eq 0 ]; then
+            echo "No JavaScript directories found. Skipping JavaScript syntax validation."
           fi

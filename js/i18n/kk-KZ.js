@@ -28,6 +28,7 @@ window.I18N.registerLocale('kk-KZ', {
   alert_token: 'GitHub token енгізіңіз',
   alert_repo: 'Репозиторийді username/repo форматында енгізіңіз',
   alert_email: 'Email енгізіңіз — GitHub email-мен сәйкес болуы керек',
+  alert_branch: 'Жарамды ветка adını енгізіңіз',
   alert_empty: 'Алдымен торда сурет салыңыз',
   log_checking: 'Репозиторий тексерілуде...',
   log_found: '✓ Репозиторий табылды:',
@@ -43,6 +44,6 @@ window.I18N.registerLocale('kk-KZ', {
   footer_star: 'GitHub-та жұлдыз қою',
   footer_issues: 'GitHub Issues',
   footer_thanks: 'Егер бұл құрал уақытыңызды үнемдесе — ⭐ үлкен қолдау!',
-  hint_token: '<a href="https://github.com/settings/tokens/new?scopes=repo" target="_blank">Токен жасау</a> — <b>repo</b> рұқсатын қосыңыз.',
-  hint_email: '<a href="https://github.com/settings/emails" target="_blank">Email тексеру</a> — сәйкес келуі керек, әйтпесе график жаңармайды.'
+  hint_token: '<a href="https://github.com/settings/tokens/new?scopes=repo" target="_blank" rel="noopener noreferrer">Токен жасау</a> — <b>repo</b> рұқсатын қосыңыз.',
+  hint_email: '<a href="https://github.com/settings/emails" target="_blank" rel="noopener noreferrer">Email тексеру</a> — сәйкес келуі керек, әйтпесе график жаңармайды.'
 });
