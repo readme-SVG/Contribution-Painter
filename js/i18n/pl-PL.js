@@ -28,6 +28,7 @@ window.I18N.registerLocale('pl-PL', {
   alert_token: 'Wpisz token GitHub',
   alert_repo: 'Wpisz repozytorium jako username/repo',
   alert_email: 'Wpisz email — musi pasować do konta GitHub',
+  alert_branch: 'Wprowadź poprawną nazwę gałęzi',
   alert_empty: 'Najpierw narysuj coś na siatce',
   log_checking: 'Sprawdzanie repozytorium...',
   log_found: '✓ Repo znalezione:',
@@ -43,6 +44,6 @@ window.I18N.registerLocale('pl-PL', {
   footer_star: 'Daj gwiazdkę na GitHub',
   footer_issues: 'GitHub Issues',
   footer_thanks: 'Jeśli to narzędzie oszczędziło czas — ⭐ wiele znaczy!',
-  hint_token: '<a href="https://github.com/settings/tokens/new?scopes=repo" target="_blank">Utwórz token</a> — włącz zakres <b>repo</b>.',
-  hint_email: '<a href="https://github.com/settings/emails" target="_blank">Sprawdź email</a> — musi się zgadzać, inaczej wykres się nie zaktualizuje.'
+  hint_token: '<a href="https://github.com/settings/tokens/new?scopes=repo" target="_blank" rel="noopener noreferrer">Utwórz token</a> — włącz zakres <b>repo</b>.',
+  hint_email: '<a href="https://github.com/settings/emails" target="_blank" rel="noopener noreferrer">Sprawdź email</a> — musi się zgadzać, inaczej wykres się nie zaktualizuje.'
 });

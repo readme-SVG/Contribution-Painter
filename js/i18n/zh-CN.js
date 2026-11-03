@@ -28,6 +28,7 @@ window.I18N.registerLocale('zh-CN', {
   alert_token: '请输入 GitHub token',
   alert_repo: '请输入仓库，格式为 username/repo',
   alert_email: '请输入 email，必须与 GitHub 账户一致',
+  alert_branch: '请输入有效的分支名称',
   alert_empty: '请先在网格上绘制内容',
   log_checking: '正在检查仓库...',
   log_found: '✓ 找到仓库：',
@@ -43,6 +44,6 @@ window.I18N.registerLocale('zh-CN', {
   footer_star: '在 GitHub 上点星',
   footer_issues: 'GitHub Issues',
   footer_thanks: '如果这个工具为你节省了时间，给个 ⭐ 就是最大的支持！',
-  hint_token: '<a href="https://github.com/settings/tokens/new?scopes=repo" target="_blank">创建 token</a> — 请勾选 <b>repo</b> 权限。',
-  hint_email: '<a href="https://github.com/settings/emails" target="_blank">检查 email</a> — 必须一致，否则图表不会更新。'
+  hint_token: '<a href="https://github.com/settings/tokens/new?scopes=repo" target="_blank" rel="noopener noreferrer">创建 token</a> — 请勾选 <b>repo</b> 权限。',
+  hint_email: '<a href="https://github.com/settings/emails" target="_blank" rel="noopener noreferrer">检查 email</a> — 必须一致，否则图表不会更新。'
 });

@@ -28,6 +28,7 @@ window.I18N.registerLocale('cs-CZ', {
   alert_token: 'Zadejte GitHub token',
   alert_repo: 'Zadejte repozitář jako username/repo',
   alert_email: 'Zadejte email — musí odpovídat vašemu GitHub účtu',
+  alert_branch: 'Zadejte platný název větve',
   alert_empty: 'Nejprve něco nakreslete do mřížky',
   log_checking: 'Kontroluji repozitář...',
   log_found: '✓ Repo nalezeno:',
@@ -43,6 +44,6 @@ window.I18N.registerLocale('cs-CZ', {
   footer_star: 'Dát hvězdu na GitHubu',
   footer_issues: 'GitHub Issues',
   footer_thanks: 'Pokud vám tento nástroj ušetřil čas — ⭐ hodně znamená!',
-  hint_token: '<a href="https://github.com/settings/tokens/new?scopes=repo" target="_blank">Vytvořit token</a> — zapněte oprávnění <b>repo</b>.',
-  hint_email: '<a href="https://github.com/settings/emails" target="_blank">Zkontrolovat email</a> — musí souhlasit, jinak se graf neaktualizuje.'
+  hint_token: '<a href="https://github.com/settings/tokens/new?scopes=repo" target="_blank" rel="noopener noreferrer">Vytvořit token</a> — zapněte oprávnění <b>repo</b>.',
+  hint_email: '<a href="https://github.com/settings/emails" target="_blank" rel="noopener noreferrer">Zkontrolovat email</a> — musí souhlasit, jinak se graf neaktualizuje.'
 });

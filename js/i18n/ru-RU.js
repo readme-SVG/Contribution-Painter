@@ -28,6 +28,7 @@ window.I18N.registerLocale('ru-RU', {
   alert_token: 'Введите GitHub token',
   alert_repo: 'Введите репозиторий в формате username/repo',
   alert_email: 'Введите email — должен совпадать с email в GitHub',
+  alert_branch: 'Введите корректное имя ветки',
   alert_empty: 'Сначала закрасьте сетку',
   log_checking: 'Проверяем репозиторий...',
   log_found: '✓ Репозиторий найден:',
@@ -43,6 +44,6 @@ window.I18N.registerLocale('ru-RU', {
   footer_star: 'Поставить звезду на GitHub',
   footer_issues: 'GitHub Issues',
   footer_thanks: 'Если инструмент сэкономил время — ⭐ многое значит!',
-  hint_token: '<a href="https://github.com/settings/tokens/new?scopes=repo" target="_blank">Создать токен</a> — включите <b>repo</b>.',
-  hint_email: '<a href="https://github.com/settings/emails" target="_blank">Проверить email</a> — должен совпадать, иначе график не обновится.'
+  hint_token: '<a href="https://github.com/settings/tokens/new?scopes=repo" target="_blank" rel="noopener noreferrer">Создать токен</a> — включите <b>repo</b>.',
+  hint_email: '<a href="https://github.com/settings/emails" target="_blank" rel="noopener noreferrer">Проверить email</a> — должен совпадать, иначе график не обновится.'
 });
