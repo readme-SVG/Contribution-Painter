@@ -7,7 +7,7 @@ body:
     attributes:
       value: |
         Thank you for taking the time to report a bug. Please ensure you have read the `CONTRIBUTING.md` and checked for existing duplicate issues before proceeding.
-  
+
   - type: checkboxes
     id: pre-flight
     attributes:
@@ -22,8 +22,8 @@ body:
     id: environment
     attributes:
       label: Environment Details
-      description: OS version, Python version, and execution context (local vs GitHub Actions).
-      placeholder: e.g., Ubuntu-latest (GitHub Actions), Python 3.11
+      description: Browser or Node.js version for the editor; Python version for automation. Never include tokens or private repository data.
+      placeholder: e.g., Firefox 145 on Windows 11, or Python 3.11 on GitHub Actions
     validations:
       required: true
 
@@ -33,9 +33,9 @@ body:
       label: Steps to Reproduce
       description: Provide a clear, step-by-step algorithm to trigger the bug.
       placeholder: |
-        1. Push commit with the following payload...
-        2. Action triggers process_event.py...
-        3. Fails with error...
+        1. Open the editor and select a year...
+        2. Paint a cell and choose an action...
+        3. Observe the error...
     validations:
       required: true
 
@@ -51,7 +51,7 @@ body:
     id: actual-behavior
     attributes:
       label: Actual Behavior / Traceback
-      description: What actually occurred? Paste stack traces or logs here.
+      description: What actually occurred? Redact tokens, email addresses, and private repository details before sharing logs.
       render: shell
     validations:
       required: true

@@ -1,5 +1,5 @@
 name: Feature Request
-description: Suggest an enhancement or a new feature for the LLM pipeline.
+description: Suggest an improvement to the contribution editor or its automation.
 title: "feat: [Short description of the feature]"
 labels: ["enhancement"]
 body:

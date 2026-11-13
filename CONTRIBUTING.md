@@ -2,10 +2,10 @@
 
 [![PRs Welcome](https://img.shields.io/badge/PRs-welcome-3e80ed?style=for-the-badge&logo=github&logoColor=white)](https://github.com/OstinUA)
 [![Open Source](https://img.shields.io/badge/Open_Source-Yes-brightgreen?style=for-the-badge&logo=open-source&logoColor=white)](https://github.com/OstinUA)
-[![Views](https://img.shields.io/badge/Profile_Views-%31&#56;%33-blueviolet?style=for-the-badge)](https://github.com/OstinUA)
+[![Views](https://img.shields.io/badge/Profile_Views-%318%33-blueviolet?style=for-the-badge)](https://github.com/OstinUA)
 [![OstinUA](https://capsule-render.vercel.app/api?type=rect&color=3e80ed&height=2&)](https://github.com/OstinUA)
 
-Hello! Thank you for your interest in contributing to this project. I am always open to any help, whether it's fixing bugs, adding new features, improving documentation, or just sharing fresh ideas. 
+Hello! Thank you for your interest in contributing to this project. I am always open to any help, whether it's fixing bugs, adding new features, improving documentation, or just sharing fresh ideas.
 
 This document is not a strict set of rules, but a simple guide on how we can comfortably and productively work together. I am very friendly and will be incredibly glad for absolutely any help!
 
@@ -28,10 +28,34 @@ The workflow here is as straightforward as possible:
 
 ## ⬢ A Few Simple Requests
 
-- Try to stick to the code style already used in the project.
+- Try to stick to the code style already used in the project. Code comments should be professional and written in English.
 - Make your commit messages clear so it's easy to understand what changed.
 - If your Pull Request resolves a specific Issue, mention its number in the description (e.g., `Closes #42`).
-- If the logic changes, please update the relevant section in the README.
+- If the logic changes, please update the relevant section in the README and add or adjust tests.
+- Never commit tokens, personal repository settings, or generated test artifacts.
+
+## ⬢ Local Checks
+
+```bash
+npm ci
+npm run check
+npm run build
+
+# Browser tests
+npx playwright install --with-deps chromium
+npm run test:e2e
+
+# Optional Python automation
+python -m venv .venv
+. .venv/bin/activate
+pip install -r requirements-dev.txt
+ruff check automation tests/python
+ruff format --check automation tests/python
+bandit -q -r automation -c pyproject.toml
+pytest -q
+```
+
+GitHub write paths should be tested against a disposable repository or mocked; do not point tests at a repository whose history matters.
 
 ## ⬢ Feedback
 

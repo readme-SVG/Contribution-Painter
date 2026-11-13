@@ -1,0 +1,31 @@
+{
+  "name": "contribution-painter",
+  "version": "2.1.0",
+  "private": true,
+  "description": "A local-first editor for GitHub contribution patterns.",
+  "type": "module",
+  "license": "GPL-3.0-only",
+  "engines": {
+    "node": ">=22.13.0"
+  },
+  "scripts": {
+    "dev": "node scripts/serve.mjs",
+    "build": "node scripts/build.mjs",
+    "lint": "eslint .",
+    "format": "prettier --write .",
+    "format:check": "prettier --check .",
+    "test": "node --test tests/unit/*.test.js",
+    "test:e2e": "playwright test",
+    "check": "npm run lint && npm run format:check && npm test"
+  },
+  "devDependencies": {
+    "@eslint/js": "10.0.1",
+    "@playwright/test": "1.65.0",
+    "eslint": "10.14.0",
+    "globals": "17.14.0",
+    "prettier": "3.10.1"
+  },
+  "overrides": {
+    "minimatch": "11.0.8"
+  }
+}

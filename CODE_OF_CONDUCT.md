@@ -10,17 +10,17 @@ This is an open and welcoming space. Everyone who participates — whether by op
 
 Things that make this a great place to contribute:
 
-* Being respectful and considerate in all interactions
-* Giving and receiving constructive feedback graciously
-* Focusing on what's best for the project and the community
-* Welcoming people regardless of their experience level, background, or identity
+- Being respectful and considerate in all interactions
+- Giving and receiving constructive feedback graciously
+- Focusing on what's best for the project and the community
+- Welcoming people regardless of their experience level, background, or identity
 
 Things that are not acceptable:
 
-* Harassment, insults, or personal attacks of any kind
-* Dismissing or belittling someone's contributions or ideas
-* Trolling, deliberate disruption, or bad-faith participation
-* Publishing private information about others without consent
+- Harassment, insults, or personal attacks of any kind
+- Dismissing or belittling someone's contributions or ideas
+- Trolling, deliberate disruption, or bad-faith participation
+- Publishing private information about others without consent
 
 ## ⬢ Scope
 
@@ -30,8 +30,8 @@ This policy applies to all public repositories under the [OstinUA](https://githu
 
 If you witness or experience behavior that violates this Code of Conduct, please report it:
 
-* **Direct message** — reach out to me on Discussions: [Readme/OstinUA](https://github.com/OstinUA/OstinUA/discussions/categories/reporting-a-vulnerability)
-* **GitHub Private Security Advisory** — if the situation calls for it
+- **Direct message** — reach out to me on Discussions: [Readme/OstinUA](https://github.com/OstinUA/OstinUA/discussions/categories/reporting-a-vulnerability)
+- **GitHub Private Security Advisory** — if the situation calls for it
 
 All reports will be handled with discretion. I'll review the situation and take whatever action seems appropriate, which may include a warning, temporary restriction, or permanent removal from the project space.
 

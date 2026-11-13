@@ -1,49 +1,58 @@
-name: Llama Auto-Issue Generator
+name: Optional Change Analysis
 
 on:
   push:
-    branches:
-      - main
+    branches: [main]
   pull_request:
-    types: [opened, synchronize, labeled]
+    types: [opened, synchronize, reopened, ready_for_review, labeled]
 
-permissions: read-all
+permissions:
+  contents: read
 
 concurrency:
-  group: ai-issue-${{ github.ref }}
+  group: change-analysis-${{ github.event.pull_request.number || github.ref }}
   cancel-in-progress: true
 
 jobs:
-  analyze_code:
+  analyze:
+    if: >-
+      github.event_name == 'push' ||
+      (github.event.pull_request.head.repo.full_name == github.repository &&
+       github.event.pull_request.draft == false)
     runs-on: ubuntu-latest
-    timeout-minutes: 10
+    timeout-minutes: 15
     permissions:
       contents: read
       issues: write
       pull-requests: write
-
     steps:
-      - name: Checkout code
+      - name: Check out trusted automation code
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
+          # Never execute automation or dependency manifests supplied by a PR head.
+          ref: ${{ github.event.pull_request.base.sha || github.sha }}
           persist-credentials: false
 
-      - name: Set up Python
+      - name: Setup Python
         uses: actions/setup-python@6d4fd22b20465ccc0f7354476588e8df7c9ca0e0 # v7
         with:
-          python-version: '3.11'
+          python-version: "3.11"
+          cache: pip
+          cache-dependency-path: requirements.txt
 
       - name: Install dependencies
-        run: |
-          pip install --no-cache-dir -r requirements.txt
+        run: python -m pip install --disable-pip-version-check -r requirements.txt
 
-      - name: Run AI Analysis
+      - name: Analyze event through the GitHub API
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           REPOSITORY: ${{ github.repository }}
           EVENT_NAME: ${{ github.event_name }}
           COMMIT_SHA: ${{ github.sha }}
           PR_NUMBER: ${{ github.event.pull_request.number }}
+          GITHUB_ACTOR: ${{ github.event_name == 'pull_request' && github.event.pull_request.user.login || github.actor }}
           GH_MODELS_TOKEN: ${{ secrets.GH_MODELS_TOKEN }}
+          MODEL_ENDPOINT: ${{ vars.MODEL_ENDPOINT }}
+          MODEL_NAME: ${{ vars.MODEL_NAME }}
           ALLOWED_USER: ${{ secrets.ALLOWED_USER }}
-        run: python "trigger action/trigger_action.py"
+        run: python -m automation.reviewer

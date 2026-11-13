@@ -1,23 +1,21 @@
-## Description
-## Related Issue(s)
-Resolves #
+## Summary
 
-## Type of Change
-- [ ] Bug fix (non-breaking change which fixes an issue)
-- [ ] New feature (non-breaking change which adds functionality)
-- [ ] Breaking change (fix or feature that would cause existing functionality to not work as expected)
-- [ ] Documentation update
-- [ ] Refactoring / Technical Debt
+Describe the behavior change and the reason for it.
 
-## Testing Performed
-- [ ] Local execution of `process_event.py`
-- [ ] Verified JSON output structure from Gemini API
-- [ ] Tested GitHub Action workflow trigger (dry-run)
-- [ ] Other: 
+## Related issues
+
+Closes #
+
+## Verification
+
+- [ ] `npm run check`
+- [ ] `npm run test:e2e` for UI changes
+- [ ] `ruff check automation tests/python` and `pytest -q` for automation changes
+- [ ] GitHub writes were tested only against a disposable repository, or mocked
 
 ## Checklist
-- [ ] My code follows the code style of this project (PEP-8).
-- [ ] I have performed a self-review of my own code.
-- [ ] I have commented my code, particularly in hard-to-understand areas.
-- [ ] I have made corresponding changes to the documentation (README.md, etc.).
-- [ ] My changes generate no new warnings or errors in the CI pipeline.
+
+- [ ] Existing commits and unrelated behavior are preserved.
+- [ ] Credentials, personal settings, and generated test artifacts are not committed.
+- [ ] User-facing text is translated and code comments are in English.
+- [ ] README and configuration examples match the implementation.
