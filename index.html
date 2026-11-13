@@ -1,190 +1,524 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>GitHub Contribution Painter</title>
-  <link rel="stylesheet" href="css/styles.css">
-</head>
-<body>
-
-<div class="topbar">
-  <div class="topbar-left">
-    <h1>GitHub Contribution Painter</h1>
-    <span class="badge">v2.0</span>
-  </div>
-  <div class="topbar-right">
-    <select class="lang-select" id="langSelect">
-      <option value="en-US">English</option>
-      <option value="ru-RU">Русский</option>
-      <option value="uk-UA">Українська</option>
-      <option value="kk-KZ">Қазақша</option>
-      <option value="cs-CZ">Čeština</option>
-      <option value="nl-NL">Nederlands</option>
-      <option value="sv-SE">Svenska</option>
-      <option value="de-DE">Deutsch</option>
-      <option value="pl-PL">Polski</option>
-      <option value="fr-FR">Français</option>
-      <option value="zh-CN">中文</option>
-      <option value="ja-JP">日本語</option>
-    </select>
-    <a class="profile-link" href="https://github.com/OstinUA" target="_blank" rel="noopener noreferrer">
-      <svg width="15" height="15" viewBox="0 0 16 16" fill="currentColor">
-        <path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0016 8c0-4.42-3.58-8-8-8z"/>
-      </svg>
-      OstinUA
-    </a>
-  </div>
-</div>
-
-<div class="container">
-<div class="main">
-
-  <div class="card">
-    <div class="card-title" data-i18n="settings">Settings</div>
-    <div class="field-row">
-      <div class="field">
-        <label data-i18n="token_label">GitHub Token</label>
-        <input type="password" id="token" placeholder="ghp_xxxxxxxxxxxxxxxxxxxx" autocomplete="off">
-        <div class="hint" id="hintToken">
-          <a href="https://github.com/settings/tokens/new?scopes=repo" target="_blank" rel="noopener noreferrer">Create token</a> — check the <b>repo</b> scope.
-        </div>
+<!doctype html>
+<html lang="en-US">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta
+      name="description"
+      content="Draw GitHub contribution patterns locally, preview them, and publish with explicit control."
+    />
+    <meta name="color-scheme" content="dark" />
+    <title>GitHub Contribution Painter</title>
+    <link rel="icon" href="data:," />
+    <link rel="stylesheet" href="css/styles.css" />
+    <script type="module" src="js/app.js"></script>
+  </head>
+  <body>
+    <a class="skip-link" href="#editor" data-i18n="skip_link">Skip to editor</a>
+    <header class="topbar">
+      <div class="topbar-left">
+        <h1 data-i18n="app_title">GitHub Contribution Painter</h1>
+        <span class="badge">v2.1</span>
       </div>
-      <div class="field">
-        <label data-i18n="repo_label">Repository</label>
-        <input type="text" id="repo" placeholder="username/repo-name">
-        <div class="hint" data-i18n="repo_hint">Must exist and have at least one commit (README).</div>
-      </div>
-    </div>
-    <div class="field-row" style="margin-top:10px">
-      <div class="field">
-        <label data-i18n="email_label">Email (same as on GitHub)</label>
-        <input type="text" id="email" placeholder="you@example.com">
-        <div class="hint" id="hintEmail">
-          <a href="https://github.com/settings/emails" target="_blank" rel="noopener noreferrer">Check email</a> — must match, otherwise the graph won't update.
-        </div>
-      </div>
-      <div class="field">
-        <label data-i18n="gitname_label">Name (git)</label>
-        <input type="text" id="gitname" placeholder="Your Name">
-      </div>
-      <div class="field">
-        <label data-i18n="branch_label">Branch</label>
-        <input type="text" id="branch" value="main">
-      </div>
-      <div class="field">
-        <label data-i18n="mult_label">Commit multiplier</label>
-        <select id="multiplier">
-          <option value="1" data-i18n="mult_1">×1 — minimum</option>
-          <option value="3">×3</option>
-          <option value="5" selected data-i18n="mult_5">×5 — recommended</option>
-          <option value="10" data-i18n="mult_10">×10 — saturated</option>
+      <div class="topbar-right">
+        <select
+          class="lang-select"
+          id="langSelect"
+          data-i18n-aria="language"
+          aria-label="Language"
+        >
+          <option value="en-US">English</option>
+          <option value="ru-RU">Русский</option>
+          <option value="uk-UA">Українська</option>
+          <option value="kk-KZ">Қазақша</option>
+          <option value="cs-CZ">Čeština</option>
+          <option value="nl-NL">Nederlands</option>
+          <option value="sv-SE">Svenska</option>
+          <option value="de-DE">Deutsch</option>
+          <option value="pl-PL">Polski</option>
+          <option value="fr-FR">Français</option>
+          <option value="zh-CN">中文</option>
+          <option value="ja-JP">日本語</option>
         </select>
+        <a
+          class="profile-link"
+          href="https://github.com/OstinUA"
+          target="_blank"
+          rel="noopener noreferrer"
+        >
+          <svg
+            aria-hidden="true"
+            width="15"
+            height="15"
+            viewBox="0 0 16 16"
+            fill="currentColor"
+          >
+            <path
+              d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0016 8c0-4.42-3.58-8-8-8z"
+            />
+          </svg>
+          OstinUA
+        </a>
       </div>
-      <div class="field">
-        <label data-i18n="range_label">Commit spread</label>
-        <select id="commitSpread">
-          <option value="off" data-i18n="range_off">Exact count</option>
-          <option value="plus2" data-i18n="range_plus2">Random +0..2 per day</option>
-        </select>
+    </header>
+
+    <main class="container">
+      <noscript
+        ><p class="notice">
+          JavaScript is required to edit and publish contribution patterns.
+        </p></noscript
+      >
+      <fieldset id="connectionFields" class="card fieldset">
+        <legend class="card-title" data-i18n="settings">
+          Connection settings
+        </legend>
+        <div class="field-row">
+          <div class="field">
+            <label for="token" data-i18n="token_label">GitHub token</label>
+            <input
+              type="password"
+              id="token"
+              placeholder="github_pat_…"
+              autocomplete="off"
+              spellcheck="false"
+              autocapitalize="off"
+              maxlength="1024"
+              aria-describedby="hintToken"
+            />
+            <p class="hint" id="hintToken">
+              <a
+                href="https://github.com/settings/personal-access-tokens/new"
+                target="_blank"
+                rel="noopener noreferrer"
+                data-i18n="token_create"
+                >Create a fine-grained token</a
+              >.
+              <span data-i18n="token_hint"
+                >Grant Contents: read and write to the target repository
+                only.</span
+              >
+            </p>
+          </div>
+          <div class="field">
+            <label for="repo" data-i18n="repo_label">Repository</label>
+            <input
+              type="text"
+              id="repo"
+              placeholder="username/repo-name"
+              autocomplete="off"
+              spellcheck="false"
+              autocapitalize="off"
+              maxlength="140"
+              aria-describedby="repoHint"
+            />
+            <p class="hint" id="repoHint" data-i18n="repo_hint">
+              An existing repository with at least one commit.
+            </p>
+          </div>
+        </div>
+        <div class="field-row spaced">
+          <div class="field">
+            <label for="email" data-i18n="email_label"
+              >GitHub account email</label
+            >
+            <input
+              type="email"
+              id="email"
+              placeholder="you@example.com"
+              autocomplete="off"
+              spellcheck="false"
+              maxlength="254"
+              aria-describedby="hintEmail"
+            />
+            <p class="hint" id="hintEmail">
+              <a
+                href="https://github.com/settings/emails"
+                target="_blank"
+                rel="noopener noreferrer"
+                data-i18n="email_check"
+                >Check your verified emails</a
+              >.
+              <span data-i18n="email_hint"
+                >Use a verified email to attribute contributions.</span
+              >
+            </p>
+          </div>
+          <div class="field">
+            <label for="gitname" data-i18n="gitname_label"
+              >Commit author name</label
+            >
+            <input
+              type="text"
+              id="gitname"
+              placeholder="Your Name"
+              autocomplete="off"
+              maxlength="255"
+            />
+          </div>
+          <div class="field">
+            <label for="branch" data-i18n="branch_label">Target branch</label>
+            <input
+              type="text"
+              id="branch"
+              value="main"
+              autocomplete="off"
+              spellcheck="false"
+              maxlength="255"
+              aria-describedby="branchHint"
+            />
+            <p class="hint" id="branchHint" data-i18n="branch_hint">
+              A missing branch is created from the default branch.
+            </p>
+          </div>
+        </div>
+        <div class="field-row spaced">
+          <div class="field">
+            <label for="multiplier" data-i18n="mult_label"
+              >Commit multiplier</label
+            >
+            <select id="multiplier">
+              <option value="1" data-i18n="mult_1">×1 — minimum</option>
+              <option value="3">×3</option>
+              <option value="5" selected data-i18n="mult_5">
+                ×5 — recommended
+              </option>
+              <option value="10" data-i18n="mult_10">×10 — saturated</option>
+            </select>
+          </div>
+          <div class="field">
+            <label for="commitSpread" data-i18n="range_label"
+              >Commit spread</label
+            >
+            <select id="commitSpread">
+              <option value="off" data-i18n="range_off">Exact count</option>
+              <option value="plus2" data-i18n="range_plus2">
+                Random +0–2 per day
+              </option>
+            </select>
+          </div>
+        </div>
+      </fieldset>
+
+      <fieldset id="editorFields" class="fieldset">
+        <section class="card" aria-labelledby="yearTitle">
+          <h2 class="card-title" id="yearTitle" data-i18n="year_title">
+            Canvas
+          </h2>
+          <div class="year-controls">
+            <label for="selYear" data-i18n="year_label">Year</label>
+            <select id="selYear"></select>
+            <span class="hint" data-i18n="year_hint"
+              >Each year keeps its own drawing.</span
+            >
+          </div>
+          <p class="hint" data-i18n="draft_hint">
+            Only drawings are saved on this device.
+          </p>
+        </section>
+
+        <section
+          class="card"
+          id="editor"
+          aria-labelledby="editorTitle"
+          tabindex="-1"
+        >
+          <h2 class="card-title" id="editorTitle" data-i18n="editor_title">
+            Pattern editor
+          </h2>
+          <div
+            class="legend"
+            role="group"
+            data-i18n-aria="intensity"
+            aria-label="Intensity"
+          >
+            <span class="legend-label" data-i18n="intensity">Intensity</span>
+            <div class="palette" id="palette">
+              <button
+                type="button"
+                class="swatch"
+                data-level="0"
+                aria-pressed="false"
+              ></button>
+              <button
+                type="button"
+                class="swatch"
+                data-level="1"
+                aria-pressed="true"
+              ></button>
+              <button
+                type="button"
+                class="swatch"
+                data-level="2"
+                aria-pressed="false"
+              ></button>
+              <button
+                type="button"
+                class="swatch"
+                data-level="3"
+                aria-pressed="false"
+              ></button>
+              <button
+                type="button"
+                class="swatch"
+                data-level="4"
+                aria-pressed="false"
+              ></button>
+              <button
+                type="button"
+                class="swatch random"
+                data-level="5"
+                aria-pressed="false"
+              >
+                ?
+              </button>
+            </div>
+            <span class="legend-key" data-i18n="legend_hint"
+              >Keys 0–5 · drag to paint</span
+            >
+          </div>
+          <div class="graph-wrap">
+            <div class="day-labels" id="dayLabels" aria-hidden="true"></div>
+            <div
+              class="graph-scroll"
+              tabindex="0"
+              data-i18n-aria="editor_title"
+              aria-label="Pattern editor"
+            >
+              <div class="month-row" id="months" aria-hidden="true"></div>
+              <div class="graph" id="graph" role="grid" aria-rowcount="7"></div>
+            </div>
+          </div>
+          <dl class="stats">
+            <div class="stat">
+              <dt data-i18n="days_painted">Painted days</dt>
+              <dd id="sDays">0</dd>
+            </div>
+            <div class="stat">
+              <dt data-i18n="commits">Planned commits</dt>
+              <dd id="sCommits">0</dd>
+            </div>
+            <div class="stat">
+              <dt data-i18n="period">Editable period</dt>
+              <dd id="sPeriod">—</dd>
+            </div>
+          </dl>
+          <div class="btn-row">
+            <button type="button" id="undoBtn" data-i18n="btn_undo" disabled>
+              Undo
+            </button>
+            <button type="button" id="redoBtn" data-i18n="btn_redo" disabled>
+              Redo
+            </button>
+            <button
+              type="button"
+              class="danger"
+              id="clearBtn"
+              data-i18n="btn_clear"
+            >
+              Clear
+            </button>
+            <button type="button" id="invertBtn" data-i18n="btn_invert">
+              Invert
+            </button>
+            <button type="button" id="fillBtn" data-i18n="btn_fill">
+              Fill randomly
+            </button>
+            <label class="fill-percent-control" for="fillPercent">
+              <span data-i18n="fill_short">Fill %</span>
+              <input
+                id="fillPercent"
+                type="text"
+                value="100%"
+                inputmode="decimal"
+                maxlength="7"
+                data-i18n-aria="fill_label"
+                aria-label="Fill percentage"
+              />
+            </label>
+          </div>
+          <div class="btn-row">
+            <button type="button" id="importBtn" data-i18n="btn_import">
+              Import JSON
+            </button>
+            <button type="button" id="exportBtn" data-i18n="btn_export">
+              Export JSON
+            </button>
+            <button type="button" id="previewBtn" data-i18n="btn_preview">
+              Preview SVG
+            </button>
+            <button
+              type="button"
+              class="primary"
+              id="pushBtn"
+              data-i18n="btn_push"
+            >
+              Apply to GitHub
+            </button>
+            <button
+              type="button"
+              class="primary"
+              id="resumeBtn"
+              data-i18n="btn_resume"
+              hidden
+            >
+              Resume publishing
+            </button>
+            <button
+              type="button"
+              class="danger"
+              id="cancelBtn"
+              data-i18n="btn_cancel"
+              hidden
+            >
+              Stop publishing
+            </button>
+          </div>
+          <input
+            type="file"
+            id="importFile"
+            accept=".json,application/json"
+            hidden
+          />
+          <div class="progress" id="progress" hidden>
+            <div
+              class="bar-wrap"
+              id="progressBar"
+              role="progressbar"
+              aria-valuemin="0"
+              aria-valuemax="100"
+              aria-valuenow="0"
+              data-i18n-aria="progress_label"
+              aria-label="Publishing progress"
+            >
+              <div class="bar" id="bar"></div>
+            </div>
+            <div
+              class="log"
+              id="log"
+              role="log"
+              aria-live="polite"
+              aria-relevant="additions"
+              data-i18n-aria="log_label"
+              aria-label="Publishing activity"
+            ></div>
+          </div>
+          <p
+            class="status-bar"
+            id="statusBar"
+            role="status"
+            aria-live="polite"
+            hidden
+          ></p>
+        </section>
+      </fieldset>
+
+      <footer class="footer">
+        <nav class="footer-left" aria-label="Project links">
+          <a
+            class="footer-link star"
+            href="https://github.com/readme-SVG/Contribution-Painter"
+            target="_blank"
+            rel="noopener noreferrer"
+            >★ <span data-i18n="footer_star">Star on GitHub</span></a
+          >
+          <a
+            class="footer-link"
+            href="https://github.com/readme-SVG/Contribution-Painter/issues"
+            target="_blank"
+            rel="noopener noreferrer"
+            data-i18n="footer_issues"
+            >GitHub Issues</a
+          >
+          <a
+            class="footer-link"
+            href="https://github.com/readme-SVG/Contribution-Painter/wiki"
+            target="_blank"
+            rel="noopener noreferrer"
+            data-i18n="footer_wiki"
+            >Project wiki</a
+          >
+        </nav>
+        <p class="footer-text" data-i18n="footer_thanks">
+          If this tool saved you time, a star means a lot!
+        </p>
+      </footer>
+    </main>
+
+    <dialog id="previewDialog" aria-labelledby="previewTitle">
+      <h2 id="previewTitle" data-i18n="preview_title">Pattern preview</h2>
+      <p class="hint" data-i18n="preview_hint">
+        Exporting an image does not create commits.
+      </p>
+      <div class="svg-preview" id="svgPreview"></div>
+      <div class="dialog-actions">
+        <button type="button" id="downloadSvgBtn" data-i18n="btn_download_svg">
+          Download SVG
+        </button>
+        <button
+          type="button"
+          data-close="previewDialog"
+          data-i18n="btn_close"
+          autofocus
+        >
+          Close
+        </button>
       </div>
-    </div>
-  </div>
+    </dialog>
 
-  <div class="card">
-    <div class="card-title" data-i18n="year_title">Year</div>
-    <div style="display:flex;align-items:center;gap:10px">
-      <select id="selYear" style="width:120px"></select>
-      <span class="hint" style="margin:0" data-i18n="year_hint">The graph covers the entire selected year</span>
-    </div>
-  </div>
-
-  <div class="card">
-    <div class="card-title" data-i18n="editor_title">Editor</div>
-    <div class="legend">
-      <span class="legend-label" data-i18n="intensity">Intensity:</span>
-      <div class="swatch sel" data-level="0" style="background:#21262d" title="Empty (0)"></div>
-      <div class="swatch" data-level="1" style="background:#0D4429" title="Level 1"></div>
-      <div class="swatch" data-level="2" style="background:#016C31" title="Level 2"></div>
-      <div class="swatch" data-level="3" style="background:#26A641" title="Level 3"></div>
-      <div class="swatch" data-level="4" style="background:#39D353" title="Level 4"></div>
-      <div class="swatch" data-level="5" style="background:#f39c12" title="Random 0-4"></div>
-      <span class="legend-key" data-i18n="legend_hint">keys 0–5 &nbsp;|&nbsp; click and drag</span>
-    </div>
-    <div class="graph-wrap">
-      <div class="day-labels">
-        <span></span><span>Mon</span><span></span><span>Wed</span>
-        <span></span><span>Fri</span><span></span>
+    <dialog
+      id="publishDialog"
+      aria-labelledby="publishTitle"
+      aria-describedby="publishWarning publishNote"
+    >
+      <h2 id="publishTitle" data-i18n="publish_title">
+        Review before publishing
+      </h2>
+      <dl class="review-summary">
+        <div>
+          <dt data-i18n="publish_target">Target</dt>
+          <dd id="reviewRepo"></dd>
+        </div>
+        <div>
+          <dt data-i18n="publish_branch">Branch</dt>
+          <dd id="reviewBranch"></dd>
+        </div>
+        <div>
+          <dt data-i18n="publish_days">Painted days</dt>
+          <dd id="reviewDays"></dd>
+        </div>
+        <div>
+          <dt data-i18n="publish_commits">Commits to create</dt>
+          <dd id="reviewCommits"></dd>
+        </div>
+        <div>
+          <dt data-i18n="publish_period">Commit dates</dt>
+          <dd id="reviewPeriod"></dd>
+        </div>
+      </dl>
+      <p class="notice" id="publishWarning" data-i18n="publish_warning">
+        This creates real commits on the target branch.
+      </p>
+      <p class="hint" id="publishNote" data-i18n="publish_note">
+        Keep this tab open while publishing.
+      </p>
+      <div class="dialog-actions">
+        <button
+          type="button"
+          data-close="publishDialog"
+          data-i18n="btn_close"
+          autofocus
+        >
+          Close
+        </button>
+        <button
+          type="button"
+          class="primary"
+          id="confirmPublishBtn"
+          data-i18n="publish_confirm"
+        >
+          Create commits and publish
+        </button>
       </div>
-      <div class="graph-scroll">
-        <div class="month-row" id="months"></div>
-        <div class="graph" id="graph"></div>
-      </div>
-    </div>
-    <div class="stats">
-      <div class="stat"><span data-i18n="days_painted">Days painted:</span> <b id="sDays">0</b></div>
-      <div class="stat"><span data-i18n="commits">Commits:</span> <b id="sCommits">0</b></div>
-      <div class="stat"><span data-i18n="period">Period:</span> <b id="sPeriod">—</b></div>
-    </div>
-    <div class="btn-row">
-      <button class="danger" id="clearBtn" data-i18n="btn_clear">Clear</button>
-      <button id="fillBtn" data-i18n="btn_fill">Fill all</button>
-      <label class="fill-percent-control" for="fillPercent">
-        <span>Fill %</span>
-        <input id="fillPercent" type="text" value="100%" inputmode="decimal" aria-label="Fill percentage" />
-      </label>
-      <button class="primary" id="pushBtn" data-i18n="btn_push">▶ Apply to GitHub</button>
-    </div>
-    <div class="progress" id="progress">
-      <div class="bar-wrap"><div class="bar" id="bar"></div></div>
-      <div class="log" id="log"></div>
-    </div>
-    <div class="status-bar" id="statusBar"></div>
-  </div>
-
-  <div class="footer">
-    <div class="footer-left">
-      <a class="footer-link star" href="https://github.com/readme-SVG/Contribution-Painter" target="_blank" rel="noopener noreferrer">
-        <svg width="14" height="14" viewBox="0 0 16 16" fill="currentColor">
-          <path d="M8 .25a.75.75 0 01.673.418l1.882 3.815 4.21.612a.75.75 0 01.416 1.279l-3.046 2.97.719 4.192a.75.75 0 01-1.088.791L8 12.347l-3.766 1.98a.75.75 0 01-1.088-.79l.72-4.194L.818 6.374a.75.75 0 01.416-1.28l4.21-.611L7.327.668A.75.75 0 018 .25z"/>
-        </svg>
-        <span data-i18n="footer_star">Star on GitHub</span>
-      </a>
-      <a class="footer-link" href="https://github.com/readme-SVG/Contribution-Painter/issues" target="_blank" rel="noopener noreferrer">
-        <svg width="14" height="14" viewBox="0 0 16 16" fill="currentColor">
-          <path d="M8 9.5a1.5 1.5 0 100-3 1.5 1.5 0 000 3z"/>
-          <path fill-rule="evenodd" d="M8 0a8 8 0 100 16A8 8 0 008 0zM1.5 8a6.5 6.5 0 1113 0 6.5 6.5 0 01-13 0z"/>
-        </svg>
-        <span data-i18n="footer_issues">GitHub Issues</span>
-      </a>
-      <a class="footer-link" href="https://github.com/readme-SVG/Contribution-Painter/wiki" target="_blank" rel="noopener noreferrer">
-        <svg width="14" height="14" viewBox="0 0 16 16" fill="currentColor">
-          <path d="M1.75 1h8.5c.966 0 1.75.784 1.75 1.75v5.5A1.75 1.75 0 0110.25 10H7.061l-2.574 2.573A1.458 1.458 0 012 11.543V10h-.25A1.75 1.75 0 010 8.25v-5.5C0 1.784.784 1 1.75 1zM1.5 2.75v5.5c0 .138.112.25.25.25h1a.75.75 0 01.75.75v2.19l2.72-2.72a.749.749 0 01.53-.22h3.5a.25.25 0 00.25-.25v-5.5a.25.25 0 00-.25-.25h-8.5a.25.25 0 00-.25.25zm13 2a.25.25 0 00-.25-.25h-.5a.75.75 0 010-1.5h.5c.966 0 1.75.784 1.75 1.75v5.5A1.75 1.75 0 0114.25 12H14v1.543a1.458 1.458 0 01-2.487 1.03L9.22 12.28a.749.749 0 111.06-1.06l2.22 2.22v-2.19a.75.75 0 01.75-.75h.25a.25.25 0 00.25-.25v-5.5z"/>
-        </svg>
-        readme-SVG / contribution-painter-wiki
-      </a>
-    </div>
-    <div class="footer-right">
-      <span class="footer-text" data-i18n="footer_thanks">If this tool saved you time — a ⭐ means a lot!</span>
-    </div>
-  </div>
-
-</div>
-</div>
-
-  <script src="js/i18n/index.js"></script>
-  <script src="js/i18n/en-US.js"></script>
-  <script src="js/i18n/ru-RU.js"></script>
-  <script src="js/i18n/uk-UA.js"></script>
-  <script src="js/i18n/kk-KZ.js"></script>
-  <script src="js/i18n/cs-CZ.js"></script>
-  <script src="js/i18n/nl-NL.js"></script>
-  <script src="js/i18n/sv-SE.js"></script>
-  <script src="js/i18n/de-DE.js"></script>
-  <script src="js/i18n/pl-PL.js"></script>
-  <script src="js/i18n/fr-FR.js"></script>
-  <script src="js/i18n/zh-CN.js"></script>
-  <script src="js/i18n/ja-JP.js"></script>
-  <script src="js/app.js"></script>
-</body>
+    </dialog>
+  </body>
 </html>

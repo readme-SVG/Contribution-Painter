@@ -1,503 +1,566 @@
-// ── i18n ──
-const i18n = window.I18N.createI18n('en-US');
-let lang = 'en-US';
+import {
+  availableYears,
+  createCalendar,
+  MULTIPLIERS,
+} from "./core/calendar.js";
+import { Pattern } from "./core/pattern.js";
+import { parseFillPercent, validateSettings } from "./core/validation.js";
+import { PublishJob } from "./core/publisher.js";
+import {
+  downloadFile,
+  loadDraft,
+  MAX_FILE_BYTES,
+  parseDocument,
+  saveDraft,
+  serializePattern,
+} from "./core/portability.js";
+import { createSvg } from "./core/svg.js";
+import { createI18n, detectLocale, LOCALES } from "./i18n/index.js";
+import { GridEditor } from "./editor.js";
 
-function t(k){ return i18n.t(k); }
+const ids = [
+  "langSelect",
+  "selYear",
+  "token",
+  "repo",
+  "email",
+  "gitname",
+  "branch",
+  "multiplier",
+  "commitSpread",
+  "fillPercent",
+  "clearBtn",
+  "invertBtn",
+  "fillBtn",
+  "undoBtn",
+  "redoBtn",
+  "pushBtn",
+  "resumeBtn",
+  "cancelBtn",
+  "graph",
+  "months",
+  "dayLabels",
+  "sDays",
+  "sCommits",
+  "sPeriod",
+  "progress",
+  "progressBar",
+  "bar",
+  "log",
+  "statusBar",
+  "connectionFields",
+  "editorFields",
+  "palette",
+  "importBtn",
+  "importFile",
+  "exportBtn",
+  "previewBtn",
+  "previewDialog",
+  "svgPreview",
+  "downloadSvgBtn",
+  "publishDialog",
+  "confirmPublishBtn",
+  "reviewRepo",
+  "reviewBranch",
+  "reviewDays",
+  "reviewCommits",
+  "reviewPeriod",
+];
+const els = Object.fromEntries(
+  ids.map((id) => [id, document.getElementById(id)]),
+);
+const i18n = createI18n();
+const t = (key, values) => i18n.t(key, values);
+const today = new Date();
+const years = availableYears(today);
+const patterns = new Map();
+let selectedYear = years[1];
+let job = null;
+let runController = null;
+let publishing = false;
+let saveTimer = null;
+let statsFrame = null;
+let storageWarningShown = false;
+let numberFormat;
+let dateFormat;
 
-// ── Cached DOM references (avoids repeated lookups in hot paths) ──
-const els = {
-  langSelect: document.getElementById('langSelect'),
-  selYear: document.getElementById('selYear'),
-  token: document.getElementById('token'),
-  repo: document.getElementById('repo'),
-  email: document.getElementById('email'),
-  gitname: document.getElementById('gitname'),
-  branch: document.getElementById('branch'),
-  multiplier: document.getElementById('multiplier'),
-  commitSpread: document.getElementById('commitSpread'),
-  fillPercent: document.getElementById('fillPercent'),
-  clearBtn: document.getElementById('clearBtn'),
-  fillBtn: document.getElementById('fillBtn'),
-  pushBtn: document.getElementById('pushBtn'),
-  graph: document.getElementById('graph'),
-  months: document.getElementById('months'),
-  sDays: document.getElementById('sDays'),
-  sCommits: document.getElementById('sCommits'),
-  sPeriod: document.getElementById('sPeriod'),
-  progress: document.getElementById('progress'),
-  bar: document.getElementById('bar'),
-  log: document.getElementById('log'),
-  statusBar: document.getElementById('statusBar'),
-  hintToken: document.getElementById('hintToken'),
-  hintEmail: document.getElementById('hintEmail')
-};
-
-function detectInitialLocale(){
-  const browserLocale = navigator.language || 'en-US';
-  const available = new Set(i18n.availableLocales);
-  if(available.has(browserLocale)) return browserLocale;
-  const base = browserLocale.split('-')[0];
-  for(const code of i18n.availableLocales){
-    if(code.split('-')[0] === base) return code;
-  }
-  return 'en-US';
-}
-
-function applyLang(){
-  document.documentElement.lang = lang;
-  document.querySelectorAll('[data-i18n]').forEach(el=>{
-    el.textContent = t(el.dataset.i18n);
-  });
-  els.hintToken.innerHTML = t('hint_token');
-  els.hintEmail.innerHTML = t('hint_email');
-  document.querySelector('#multiplier option[value="1"]').textContent = t('mult_1');
-  document.querySelector('#multiplier option[value="5"]').textContent = t('mult_5');
-  document.querySelector('#multiplier option[value="10"]').textContent = t('mult_10');
-  updateStats();
-}
-
-els.langSelect.addEventListener('change', e=>{
-  lang = e.target.value;
-  i18n.setLocale(lang);
-  applyLang();
-});
-
-// ── Graph state ──
-const ROWS = 7;
-const COLORS = ['#21262d','#0D4429','#016C31','#26A641','#39D353','#f39c12'];
-let grid = [], selLevel = 0, isDown = false;
-let startDate = new Date();
-let totalCols = 53;
-let selectedYear = new Date().getFullYear();
-
-// ── Year selector ──
-(()=>{
-  const sel = els.selYear;
-  const now = new Date().getFullYear();
-  for(let y = now + 1; y >= now - 10; y--){
-    const o = document.createElement('option');
-    o.value = y; o.textContent = y;
-    if(y === now) o.selected = true;
-    sel.appendChild(o);
-  }
-  sel.addEventListener('change', ()=> setYear(+sel.value));
-})();
-
-function setYear(year){
-  selectedYear = year;
-  const jan1 = new Date(year, 0, 1);
-  const sun = new Date(jan1);
-  sun.setDate(jan1.getDate() - jan1.getDay());
-  sun.setHours(12,0,0,0);
-  startDate = sun;
-
-  const dec31 = new Date(year, 11, 31);
-  const sat = new Date(dec31);
-  sat.setDate(dec31.getDate() + (6 - dec31.getDay()));
-  sat.setHours(12,0,0,0);
-
-  const msPerWeek = 7 * 24 * 60 * 60 * 1000;
-  totalCols = Math.round((sat - sun) / msPerWeek) + 1;
-  rebuildGraph();
-}
-
-// ── Graph ──
-const graphEl = els.graph;
-const monthsEl = els.months;
-
-function rebuildGraph(){
-  grid = new Array(totalCols * ROWS).fill(0);
-  graphEl.innerHTML = '';
-  monthsEl.innerHTML = '';
-
-  const monthsFrag = document.createDocumentFragment();
-  let lastM = -1;
-  for(let c = 0; c < totalCols; c++){
-    const d = new Date(startDate);
-    d.setDate(d.getDate() + c * 7);
-    const span = document.createElement('span');
-    if(d.getMonth() !== lastM){ span.textContent = d.toLocaleString(lang,{month:'short'}); lastM = d.getMonth(); }
-    monthsFrag.appendChild(span);
-  }
-  monthsEl.appendChild(monthsFrag);
-
-  const colDef = `repeat(${totalCols}, 13px)`;
-  monthsEl.style.gridTemplateColumns = colDef;
-  graphEl.style.gridTemplateColumns = colDef;
-
-  const today = new Date(); today.setHours(23,59,59,999);
-  const yearStart = new Date(selectedYear, 0, 1);
-  const yearEnd   = new Date(selectedYear, 11, 31); yearEnd.setHours(23,59,59,999);
-
-  // Build all cells in a fragment so the whole grid is inserted with one reflow.
-  const frag = document.createDocumentFragment();
-  for(let c = 0; c < totalCols; c++){
-    for(let r = 0; r < ROWS; r++){
-      const d = new Date(startDate);
-      d.setDate(d.getDate() + c * 7 + r);
-      const cell = document.createElement('div');
-      cell.className = 'cell';
-      cell.dataset.i = c * ROWS + r;
-      if(d < yearStart || d > yearEnd || d > today){
-        cell.classList.add('out');
-        cell.style.background = 'transparent';
-      } else {
-        cell.style.background = COLORS[0];
-      }
-      frag.appendChild(cell);
+const editor = new GridEditor(els.graph, els.months, {
+  translate: t,
+  locale: i18n.locale,
+  onStroke: changed,
+  onBrush: (brush) => {
+    for (const swatch of els.palette.children) {
+      swatch.setAttribute(
+        "aria-pressed",
+        String(Number(swatch.dataset.level) === brush),
+      );
     }
+  },
+});
+
+function currentPattern() {
+  return patterns.get(selectedYear);
+}
+
+function storage() {
+  try {
+    return window.localStorage;
+  } catch {
+    return null;
   }
-  graphEl.appendChild(frag);
+}
+
+function setStatus(key, type = "", values = {}) {
+  els.statusBar.hidden = !key;
+  els.statusBar.className = `status-bar ${type}`;
+  els.statusBar.textContent = key ? t(key, values) : "";
+}
+
+function addLog(key, type = "", values = {}) {
+  const entry = document.createElement("span");
+  entry.className = type;
+  entry.textContent = t(key, values);
+  els.log.append(entry);
+  while (els.log.childElementCount > 100) els.log.firstElementChild.remove();
+  els.log.scrollTop = els.log.scrollHeight;
+}
+
+function persistDraft() {
+  clearTimeout(saveTimer);
+  saveTimer = null;
+  if (!saveDraft(storage(), patterns, selectedYear) && !storageWarningShown) {
+    storageWarningShown = true;
+    setStatus("status_draft_failed", "warn");
+  }
+}
+
+function changed() {
+  // A new drawing must never silently reuse an earlier immutable commit plan.
+  if (!publishing) job = null;
+  els.resumeBtn.hidden = true;
   updateStats();
+  clearTimeout(saveTimer);
+  saveTimer = setTimeout(persistDraft, 250);
 }
 
-// Event delegation: two listeners on the container instead of two per cell
-// (371 cells => 742 listeners before), which keeps drag-painting fast.
-graphEl.addEventListener('mousedown', e=>{
-  const cell = e.target.closest('.cell');
-  if(!cell) return;
-  e.preventDefault();
-  isDown = true;
-  paint(cell);
-});
-graphEl.addEventListener('mouseover', e=>{
-  if(!isDown) return;
-  const cell = e.target.closest('.cell');
-  if(cell) paint(cell);
-});
-
-function resolveLevel(){
-  if(selLevel === 5) return Math.floor(Math.random() * 5);
-  return selLevel;
+function updateStats() {
+  const pattern = currentPattern();
+  const stats = pattern.stats(
+    Number(els.multiplier.value),
+    els.commitSpread.value === "plus2",
+  );
+  els.sDays.textContent = numberFormat.format(stats.days);
+  els.sCommits.textContent =
+    stats.minimum === stats.maximum
+      ? numberFormat.format(stats.minimum)
+      : `${numberFormat.format(stats.minimum)}–${numberFormat.format(stats.maximum)}`;
+  const indices = pattern.calendar.activeIndices;
+  els.sPeriod.textContent = indices.length
+    ? `${dateFormat.format(pattern.calendar.days[indices[0]].timestamp)} – ${dateFormat.format(pattern.calendar.days[indices.at(-1)].timestamp)}`
+    : t("no_days");
+  els.undoBtn.disabled = !pattern.past.length;
+  els.redoBtn.disabled = !pattern.future.length;
 }
 
-function paint(cell){
-  if(cell.classList.contains('out')) return;
-  const i = +cell.dataset.i;
-  const level = resolveLevel();
-  grid[i] = level;
-  cell.style.background = COLORS[level];
-  scheduleStatsUpdate();
-}
-
-// ── Stats ──
-// Coalesce stat updates into one per animation frame so drag-painting stays smooth.
-let statsScheduled = false;
-function scheduleStatsUpdate(){
-  if(statsScheduled) return;
-  statsScheduled = true;
-  requestAnimationFrame(()=>{
-    statsScheduled = false;
+function scheduleStats() {
+  if (statsFrame !== null) return;
+  statsFrame = requestAnimationFrame(() => {
+    statsFrame = null;
     updateStats();
   });
 }
 
-function updateStats(){
-  const mult = +els.multiplier.value;
-  const isSpreadEnabled = els.commitSpread.value === 'plus2';
-  // Single pass over the grid instead of reduce + two filter passes.
-  let days = 0, minCommits = 0;
-  for(let i = 0; i < grid.length; i++){
-    const v = grid[i];
-    if(v > 0){ days++; minCommits += v * mult; }
-  }
-  const maxCommits = isSpreadEnabled ? minCommits + days * 2 : minCommits;
-  els.sDays.textContent = days;
-  els.sCommits.textContent = isSpreadEnabled
-    ? `${minCommits.toLocaleString()}-${maxCommits.toLocaleString()}`
-    : minCommits.toLocaleString();
-  const end = new Date(startDate); end.setDate(end.getDate() + totalCols * 7 - 1);
-  const fmt = d => d.toLocaleDateString(lang,{day:'numeric',month:'short',year:'numeric'});
-  els.sPeriod.textContent = fmt(startDate) + ' — ' + fmt(end);
-}
-
-// ── Controls ──
-document.querySelectorAll('.swatch').forEach(s => s.addEventListener('click', ()=>{
-  selLevel = +s.dataset.level;
-  document.querySelectorAll('.swatch').forEach(x => x.classList.toggle('sel', x === s));
-}));
-document.addEventListener('keydown', e=>{
-  const ae = document.activeElement;
-  if(ae && ['INPUT','TEXTAREA','SELECT'].includes(ae.tagName)) return;
-  const n = parseInt(e.key);
-  if(n >= 0 && n <= 5){
-    selLevel = n;
-    document.querySelectorAll('.swatch').forEach(s => s.classList.toggle('sel', +s.dataset.level === n));
-  }
-});
-document.addEventListener('mouseup', ()=> isDown = false);
-els.multiplier.addEventListener('change', updateStats);
-els.commitSpread.addEventListener('change', updateStats);
-
-els.clearBtn.addEventListener('click', ()=>{
-  grid = new Array(totalCols * ROWS).fill(0);
-  document.querySelectorAll('.cell:not(.out)').forEach(c => c.style.background = COLORS[0]);
-  updateStats(); setStatus('');
-});
-els.fillBtn.addEventListener('click', ()=>{
-  const fillPercent = getFillPercent();
-  const activeCells = [...document.querySelectorAll('.cell:not(.out)')];
-  const targetCount = Math.round(activeCells.length * (fillPercent / 100));
-  const picked = new Set(pickRandomCells(activeCells, targetCount));
-
-  activeCells.forEach(c=>{
-    const i = +c.dataset.i;
-    if(picked.has(c)){
-      const level = resolveLevel();
-      grid[i] = level;
-      c.style.background = COLORS[level];
-      return;
-    }
-    grid[i] = 0;
-    c.style.background = COLORS[0];
-  });
+function selectYear(year) {
+  editor.finishStroke();
+  selectedYear = year;
+  els.selYear.value = String(year);
+  if (!patterns.has(year))
+    patterns.set(year, new Pattern(createCalendar(year, today)));
+  editor.render(currentPattern());
+  job = null;
+  els.resumeBtn.hidden = true;
   updateStats();
+}
+
+function applyLanguage() {
+  document.documentElement.lang = i18n.locale;
+  document.title = t("app_title");
+  document.querySelectorAll("[data-i18n]").forEach((element) => {
+    element.textContent = t(element.dataset.i18n);
+  });
+  document.querySelectorAll("[data-i18n-aria]").forEach((element) => {
+    element.setAttribute("aria-label", t(element.dataset.i18nAria));
+  });
+  for (const swatch of els.palette.children) {
+    const level = Number(swatch.dataset.level);
+    const label =
+      level === 5
+        ? t("level_random")
+        : level === 0
+          ? t("level_0")
+          : t("level_n", { n: level });
+    swatch.setAttribute("aria-label", label);
+    swatch.title = `${label} (${level})`;
+  }
+  numberFormat = new Intl.NumberFormat(i18n.locale);
+  dateFormat = new Intl.DateTimeFormat(i18n.locale, {
+    day: "numeric",
+    month: "short",
+    year: "numeric",
+    timeZone: "UTC",
+  });
+  els.dayLabels.replaceChildren(
+    ...Array.from({ length: 7 }, (_, day) => {
+      const label = document.createElement("span");
+      label.textContent = [1, 3, 5].includes(day)
+        ? new Intl.DateTimeFormat(i18n.locale, {
+            weekday: "short",
+            timeZone: "UTC",
+          }).format(Date.UTC(2024, 0, 7 + day))
+        : "";
+      return label;
+    }),
+  );
+  editor.locale = i18n.locale;
+  editor.render(currentPattern());
+  updateStats();
+}
+
+function readSettings() {
+  const settings = validateSettings({
+    token: els.token.value,
+    repo: els.repo.value,
+    email: els.email.value,
+    gitname: els.gitname.value,
+    branch: els.branch.value,
+  });
+  const multiplier = Number(els.multiplier.value);
+  if (!MULTIPLIERS.includes(multiplier)) throw new Error("error_unknown");
+  return settings;
+}
+
+function showValidation(error) {
+  const field = {
+    alert_token: "token",
+    alert_repo: "repo",
+    alert_email: "email",
+    alert_branch: "branch",
+    alert_name: "gitname",
+    alert_percent: "fillPercent",
+  }[error.message];
+  if (field) {
+    els[field].setAttribute("aria-invalid", "true");
+    els[field].setAttribute("aria-describedby", "statusBar");
+    els[field].focus();
+  }
+  setStatus(error.message, "err");
+}
+
+function mutate(operation) {
+  try {
+    editor.finishStroke();
+    if (operation(currentPattern())) changed();
+    setStatus("");
+  } catch (error) {
+    showValidation(error);
+  }
+}
+
+function openPublishReview(resume = false) {
+  try {
+    editor.finishStroke();
+    const settings = readSettings();
+    if (!resume) {
+      const pattern = currentPattern();
+      const plan = pattern.commitPlan(
+        Number(els.multiplier.value),
+        els.commitSpread.value === "plus2",
+      );
+      if (!plan.length) throw new Error("alert_empty");
+      job = new PublishJob(settings, plan, { notify: publishNotification });
+    }
+    if (!job || job.finished) return;
+    if (resume) job.settings = { ...job.settings, token: settings.token };
+    els.reviewRepo.textContent = job.settings.repository.slug;
+    els.reviewBranch.textContent = job.settings.branch;
+    els.reviewDays.textContent = numberFormat.format(job.plan.length);
+    els.reviewCommits.textContent = numberFormat.format(
+      resume ? job.total - job.completed : job.total,
+    );
+    els.reviewPeriod.textContent = `${job.plan[0].date} – ${job.plan.at(-1).date}`;
+    els.confirmPublishBtn.textContent = t(
+      resume ? "publish_resume_confirm" : "publish_confirm",
+    );
+    els.confirmPublishBtn.dataset.resume = String(resume);
+    els.publishDialog.showModal();
+  } catch (error) {
+    showValidation(error);
+  }
+}
+
+function publishNotification(type, values) {
+  if (type === "progress") {
+    const percent = Math.floor((values.completed / values.total) * 100);
+    els.bar.style.width = `${percent}%`;
+    els.progressBar.setAttribute("aria-valuenow", percent);
+    if (values.completed % 25 === 0 || values.completed === values.total)
+      addLog("log_creating", "", values);
+  } else addLog(type);
+}
+
+function setPublishing(active) {
+  publishing = active;
+  els.connectionFields.disabled = active;
+  els.editorFields.disabled = active;
+  els.cancelBtn.hidden = !active;
+  els.resumeBtn.hidden = active || !job || job.finished;
+  els.pushBtn.disabled = active;
+}
+
+async function publish() {
+  els.publishDialog.close();
+  if (!job || publishing) return;
+  const activeJob = job;
+  runController = new AbortController();
+  setPublishing(true);
+  els.progress.hidden = false;
+  const percent = Math.floor((activeJob.completed / activeJob.total) * 100);
+  els.bar.style.width = `${percent}%`;
+  els.progressBar.setAttribute("aria-valuenow", percent);
+  els.log.replaceChildren();
+  setStatus("");
+  try {
+    await activeJob.run(activeJob.settings.token, runController.signal);
+    els.bar.style.width = "100%";
+    els.progressBar.setAttribute("aria-valuenow", "100");
+    addLog("log_success", "ok", {
+      total: activeJob.total,
+      repo: activeJob.settings.repository.slug,
+    });
+    setStatus("status_finished", "ok");
+    els.token.value = "";
+  } catch (error) {
+    if (error.name === "AbortError") {
+      addLog("log_stopped", "warn", {
+        completed: activeJob.completed,
+        total: activeJob.total,
+      });
+      setStatus("status_cancelled", "warn");
+    } else {
+      const key = /^(alert_|error_|status_|log_)/.test(error.message)
+        ? error.message
+        : "error_unknown";
+      const detail = error.detail
+        ? ` ${error.detail.replaceAll(activeJob.settings.token, "[redacted]")}`
+        : "";
+      setStatus(key, "err", { status: error.status });
+      if (detail) els.statusBar.textContent += detail;
+      addLog(key, "err", { status: error.status });
+    }
+  } finally {
+    setPublishing(false);
+    runController = null;
+    if (activeJob.finished) job = null;
+  }
+}
+
+els.langSelect.addEventListener("change", async () => {
+  const previous = i18n.locale;
+  els.langSelect.disabled = true;
+  try {
+    await i18n.setLocale(els.langSelect.value);
+    applyLanguage();
+  } catch {
+    els.langSelect.value = previous;
+    setStatus("status_locale_failed", "err");
+  } finally {
+    els.langSelect.disabled = false;
+  }
+});
+els.selYear.addEventListener("change", () => {
+  selectYear(Number(els.selYear.value));
+  persistDraft();
+});
+els.palette.addEventListener("click", (event) => {
+  const swatch = event.target.closest(".swatch");
+  if (swatch) editor.setBrush(Number(swatch.dataset.level));
+});
+els.graph.addEventListener("pointermove", scheduleStats);
+els.graph.addEventListener("pointerup", scheduleStats);
+els.clearBtn.addEventListener("click", () =>
+  mutate((pattern) => pattern.clear()),
+);
+els.invertBtn.addEventListener("click", () =>
+  mutate((pattern) => pattern.invert()),
+);
+els.fillBtn.addEventListener("click", () =>
+  mutate((pattern) => {
+    const percent = parseFillPercent(els.fillPercent.value);
+    els.fillPercent.value = `${percent}%`;
+    return pattern.fill(percent, editor.brush);
+  }),
+);
+els.undoBtn.addEventListener("click", () =>
+  mutate((pattern) => pattern.undo()),
+);
+els.redoBtn.addEventListener("click", () =>
+  mutate((pattern) => pattern.redo()),
+);
+els.multiplier.addEventListener("change", changed);
+els.commitSpread.addEventListener("change", changed);
+els.fillPercent.addEventListener("blur", () => {
+  try {
+    els.fillPercent.value = `${parseFillPercent(els.fillPercent.value)}%`;
+  } catch {
+    /* Keep invalid input visible until Fill is used. */
+  }
 });
 
-function getFillPercent(){
-  const input = els.fillPercent;
-  const parsed = Number.parseFloat(input.value.trim().replace(',', '.'));
-  const safe = Number.isFinite(parsed) ? Math.min(100, Math.max(0, parsed)) : 100;
-  input.value = `${safe}%`;
-  return safe;
+for (const id of ["token", "repo", "email", "gitname", "branch"]) {
+  els[id].addEventListener("input", () => {
+    els[id].removeAttribute("aria-invalid");
+    const hint = {
+      token: "hintToken",
+      repo: "repoHint",
+      email: "hintEmail",
+      branch: "branchHint",
+    }[id];
+    if (hint) els[id].setAttribute("aria-describedby", hint);
+    if (id !== "token" && !publishing) {
+      job = null;
+      els.resumeBtn.hidden = true;
+    }
+  });
 }
 
-function pickRandomCells(cells, count){
-  const pool = [...cells];
-  for(let i = pool.length - 1; i > 0; i--){
-    const j = Math.floor(Math.random() * (i + 1));
-    [pool[i], pool[j]] = [pool[j], pool[i]];
+document.addEventListener("keydown", (event) => {
+  if (
+    publishing ||
+    event.isComposing ||
+    event.target.closest(
+      'input, select, textarea, [contenteditable="true"], dialog',
+    )
+  )
+    return;
+  if ((event.ctrlKey || event.metaKey) && event.key.toLowerCase() === "z") {
+    event.preventDefault();
+    mutate((pattern) => (event.shiftKey ? pattern.redo() : pattern.undo()));
+  } else if (
+    (event.ctrlKey || event.metaKey) &&
+    event.key.toLowerCase() === "y"
+  ) {
+    event.preventDefault();
+    mutate((pattern) => pattern.redo());
+  } else if (
+    !event.ctrlKey &&
+    !event.metaKey &&
+    !event.altKey &&
+    /^[0-5]$/.test(event.key)
+  ) {
+    editor.setBrush(Number(event.key));
   }
-  return pool.slice(0, count);
-}
+});
 
-// ── Logging ──
-const MAX_LOG_ENTRIES = 400;
-function addLog(msg, type){
-  const log = els.log;
-  const span = document.createElement('span');
-  if(type) span.className = type;
-  span.textContent = msg + '\n';
-  log.appendChild(span);
-  // Keep the log DOM bounded during very long runs.
-  while(log.childElementCount > MAX_LOG_ENTRIES) log.removeChild(log.firstChild);
-  log.scrollTop = log.scrollHeight;
-}
-function setStatus(msg, type){
-  const el = els.statusBar;
-  el.className = 'status-bar' + (type ? ' '+type : '');
-  el.textContent = msg;
-}
-
-// ── GitHub API ──
-const API_BASE = 'https://api.github.com';
-const API_TIMEOUT_MS = 30000;
-const API_MAX_ATTEMPTS = 3;
-
-function sleep(ms){ return new Promise(resolve => setTimeout(resolve, ms)); }
-
-async function api(token, method, path, body){
-  for(let attempt = 1; ; attempt++){
-    let r;
-    try{
-      r = await fetch(API_BASE + path, {
-        method,
-        headers:{
-          'Authorization': 'token ' + token,
-          'Content-Type': 'application/json',
-          'Accept': 'application/vnd.github+json',
-          'X-GitHub-Api-Version': '2022-11-28'
-        },
-        body: body ? JSON.stringify(body) : undefined,
-        signal: AbortSignal.timeout(API_TIMEOUT_MS)
-      });
-    }catch(err){
-      // Network failure or timeout. Only idempotent reads are safe to retry:
-      // a failed write may still have been applied server-side.
-      if(method === 'GET' && attempt < API_MAX_ATTEMPTS){
-        await sleep(500 * attempt);
-        continue;
-      }
-      throw new Error('Network error: ' + err.message);
-    }
-
-    if(r.status === 204 || r.status === 205) return null;
-
-    const contentType = r.headers.get('content-type') || '';
-    const text = await r.text();
-    const isJson = contentType.includes('json');
-
-    if(!r.ok){
-      let message = 'HTTP ' + r.status;
-      if(isJson && text){
-        try{
-          const data = JSON.parse(text);
-          if(data.message) message = data.message;
-          if(Array.isArray(data.errors) && data.errors.length){
-            message += ' — ' + data.errors.map(e => e.message || e.code).join('; ');
-          }
-        }catch{ /* keep the plain HTTP status message */ }
-      }
-      if((r.status === 403 || r.status === 429) && r.headers.get('x-ratelimit-remaining') === '0'){
-        message = 'GitHub API rate limit exceeded. ' + message;
-      }
-      const err = new Error(message);
-      err.status = r.status;
-      // 429 means the request was rejected before processing, so any method may retry.
-      if(r.status === 429 && attempt < API_MAX_ATTEMPTS){
-        const waitSec = Math.min(Number(r.headers.get('retry-after')) || 5, 60);
-        await sleep(waitSec * 1000);
-        continue;
-      }
-      // Server-side failures on reads are transient and safe to retry.
-      if(r.status >= 500 && method === 'GET' && attempt < API_MAX_ATTEMPTS){
-        await sleep(500 * attempt);
-        continue;
-      }
-      throw err;
-    }
-
-    if(!text) return null;
-    if(!isJson) return text;
-    return JSON.parse(text);
+els.importBtn.addEventListener("click", () => els.importFile.click());
+els.importFile.addEventListener("change", async () => {
+  const file = els.importFile.files[0];
+  els.importFile.value = "";
+  if (!file) return;
+  try {
+    if (file.size > MAX_FILE_BYTES) throw new Error("alert_file_size");
+    const document = parseDocument(await file.text(), years, today);
+    selectYear(document.year);
+    patterns.get(document.year).replace(document.cells);
+    changed();
+    persistDraft();
+    setStatus("status_imported", "ok");
+  } catch (error) {
+    setStatus(
+      /^(alert_|error_)/.test(error.message) ? error.message : "alert_import",
+      "err",
+    );
   }
+});
+els.exportBtn.addEventListener("click", () => {
+  editor.finishStroke();
+  downloadFile(
+    JSON.stringify(serializePattern(currentPattern()), null, 2),
+    "application/json",
+    `contribution-pattern-${selectedYear}.json`,
+  );
+  setStatus("status_exported", "ok");
+});
+els.previewBtn.addEventListener("click", () => {
+  editor.finishStroke();
+  els.svgPreview.replaceChildren(createSvg(currentPattern()));
+  els.previewDialog.showModal();
+});
+els.downloadSvgBtn.addEventListener("click", () => {
+  const svg = new XMLSerializer().serializeToString(
+    createSvg(currentPattern()),
+  );
+  downloadFile(
+    svg,
+    "image/svg+xml;charset=utf-8",
+    `contribution-pattern-${selectedYear}.svg`,
+  );
+});
+document.querySelectorAll("[data-close]").forEach((button) => {
+  button.addEventListener("click", () =>
+    document.getElementById(button.dataset.close).close(),
+  );
+});
+els.pushBtn.addEventListener("click", () => openPublishReview());
+els.resumeBtn.addEventListener("click", () => openPublishReview(true));
+els.confirmPublishBtn.addEventListener("click", publish);
+els.cancelBtn.addEventListener("click", () => runController?.abort());
+window.addEventListener("pagehide", persistDraft);
+window.addEventListener("beforeunload", (event) => {
+  if (!publishing) return;
+  event.preventDefault();
+  event.returnValue = "";
+});
+
+for (const year of years) {
+  const option = document.createElement("option");
+  option.value = year;
+  option.textContent = year;
+  els.selYear.append(option);
 }
-
-// ── Input validation ──
-// GitHub owner/repo: alphanumerics plus - _ . (segments are URL-encoded below,
-// so user input can never alter the request path or host).
-const REPO_RE = /^[\w.-]+\/[\w.-]+$/;
-// Minimal email sanity check — GitHub rejects a malformed email with a 422,
-// which would otherwise abort the run only after many commits were created.
-const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/;
-// git-check-ref-format rules (subset) for branch names.
-const BAD_REF_RE = /[\x00-\x20~^:?*[\\]|\.\.|@\{|(^[-/])|([/.]$)|\.lock$/i;
-
-function encSeg(s){ return encodeURIComponent(s); }
-
-async function doPush(){
-  const token   = els.token.value.trim();
-  const repo    = els.repo.value.trim();
-  const branch  = els.branch.value.trim() || 'main';
-  const mult    = +els.multiplier.value;
-  const spreadMode = els.commitSpread.value;
-  const email   = els.email.value.trim();
-  const gitname = els.gitname.value.trim() || 'GitHub Painter';
-
-  if(!token) { alert(t('alert_token')); return; }
-  if(!REPO_RE.test(repo) || repo.split('/').some(s => s === '.' || s === '..')) { alert(t('alert_repo')); return; }
-  if(!EMAIL_RE.test(email)) { alert(t('alert_email')); return; }
-  if(BAD_REF_RE.test(branch)) { alert(t('alert_branch')); return; }
-
-  const [owner, repoName] = repo.split('/');
-  const repoPath = `/repos/${encSeg(owner)}/${encSeg(repoName)}`;
-  const branchPath = branch.split('/').map(encSeg).join('/');
-
-  const commits = [];
-  for(let c = 0; c < totalCols; c++){
-    for(let r = 0; r < ROWS; r++){
-      const level = grid[c * ROWS + r];
-      if(!level) continue;
-      const d = new Date(startDate);
-      d.setDate(d.getDate() + c * 7 + r);
-      d.setHours(12,0,0,0);
-      const iso = d.toISOString().replace(/\.\d{3}Z$/, '+00:00');
-      const baseCount = level * mult;
-      const spreadBoost = spreadMode === 'plus2' ? Math.floor(Math.random() * 3) : 0;
-      const commitCount = baseCount + spreadBoost;
-      for(let k = 0; k < commitCount; k++) commits.push({ date:iso, idx:`${c}-${r}-${k}` });
-    }
-  }
-  if(!commits.length){ alert(t('alert_empty')); return; }
-
-  const btn = els.pushBtn;
-  btn.disabled = true;
-  els.progress.classList.add('on');
-  els.log.innerHTML = '';
-  els.bar.style.width = '0%';
-  setStatus('');
-
-  try{
-    addLog(t('log_checking'));
-    await api(token, 'GET', repoPath);
-    addLog(`${t('log_found')} ${repo}`, 'ok');
-
-    let baseSha = null, baseTreeSha = null;
-    try{
-      const ref = await api(token, 'GET', `${repoPath}/git/ref/heads/${branchPath}`);
-      baseSha = ref.object.sha;
-      const c0 = await api(token, 'GET', `${repoPath}/git/commits/${baseSha}`);
-      baseTreeSha = c0.tree.sha;
-      addLog(`${t('log_branch_ok')} "${branch}"`, 'ok');
-    }catch(err){
-      // Only a genuine 404 means "branch does not exist yet"; anything else
-      // (bad token, missing access, server error) must abort before any commit.
-      if(err && err.status === 404) addLog(t('log_branch_new'));
-      else throw err;
-    }
-
-    // Pre-flight quota check: every commit costs 2 requests (tree + commit),
-    // so make sure the remaining rate limit can cover the whole run before
-    // creating anything.
-    try{
-      const rl = await api(token, 'GET', '/rate_limit');
-      const core = rl && rl.resources && rl.resources.core;
-      const needed = commits.length * 2 + 5;
-      if(core && core.remaining < needed){
-        addLog(`${t('log_error')} rate limit: ${core.remaining} remaining, ~${needed} needed`, 'err');
-        setStatus(`${t('status_error')} rate limit (${core.remaining}/${needed})`, 'err');
-        return;
-      }
-    }catch{ /* the quota probe is best-effort */ }
-
-    addLog(t('log_blob'));
-    const blob = await api(token, 'POST', `${repoPath}/git/blobs`, { content:'This GitHub contribution graph art was generated using Contribution-Painter. Create your own at: https://github.com/readme-SVG/Contribution-Painter\n', encoding:'utf-8' });
-
-    const total = commits.length;
-    let done = 0, currentSha = baseSha, currentTree = baseTreeSha;
-    addLog(`${t('log_commits')} ${total.toLocaleString()}`);
-
-    for(const cm of commits){
-      const treePayload = { tree:[{ path:'contribution-painter.txt', mode:'100644', type:'blob', sha:blob.sha }] };
-      if(currentTree) treePayload.base_tree = currentTree;
-      const tree = await api(token, 'POST', `${repoPath}/git/trees`, treePayload);
-      const newCommit = await api(token, 'POST', `${repoPath}/git/commits`, {
-        message: `painted ${cm.idx}`, tree: tree.sha,
-        author:    { name:gitname, email:email, date:cm.date },
-        committer: { name:gitname, email:email, date:cm.date },
-        parents: currentSha ? [currentSha] : []
-      });
-      currentSha = newCommit.sha; currentTree = tree.sha;
-      done++;
-      const pct = Math.round(done/total*100);
-      els.bar.style.width = pct + '%';
-      if(done % 25 === 0 || done === total) addLog(`  [${pct}%] ${done}/${total}`);
-    }
-
-    addLog(t('log_updating'));
-    if(baseSha){
-      await api(token, 'PATCH', `${repoPath}/git/refs/heads/${branchPath}`, { sha:currentSha, force:true });
-    } else {
-      await api(token, 'POST', `${repoPath}/git/refs`, { ref:`refs/heads/${branch}`, sha:currentSha });
-    }
-
-    addLog(`${t('log_done')} github.com/${repo}`, 'ok');
-    els.bar.style.width = '100%';
-    setStatus(`${t('status_done')} github.com/${repo}`, 'ok');
-
-  }catch(e){
-    addLog(t('log_error') + ' ' + e.message, 'err');
-    setStatus(t('status_error') + ' ' + e.message, 'err');
-  }finally{
-    btn.disabled = false;
+const draft = loadDraft(storage(), years, today);
+if (draft) {
+  selectedYear = draft.selectedYear;
+  for (const entry of draft.patterns) {
+    const pattern = new Pattern(createCalendar(entry.year, today));
+    pattern.replace(entry.cells);
+    pattern.past.length = 0;
+    patterns.set(entry.year, pattern);
   }
 }
-
-els.pushBtn.addEventListener('click', doPush);
-
-// ── Init ──
-lang = detectInitialLocale();
-i18n.setLocale(lang);
-els.langSelect.value = lang;
-setYear(new Date().getFullYear());
-applyLang();
+let initialLocale = detectLocale();
+try {
+  const saved = storage()?.getItem("contribution-painter:locale");
+  if (LOCALES[saved]) initialLocale = saved;
+} catch {
+  /* Browser locale is the fallback when storage is restricted. */
+}
+await i18n.setLocale(initialLocale);
+els.langSelect.value = i18n.locale;
+numberFormat = new Intl.NumberFormat(i18n.locale);
+dateFormat = new Intl.DateTimeFormat(i18n.locale, {
+  day: "numeric",
+  month: "short",
+  year: "numeric",
+  timeZone: "UTC",
+});
+selectYear(selectedYear);
+editor.setBrush(1);
+applyLanguage();
+els.langSelect.addEventListener("change", () => {
+  try {
+    storage()?.setItem("contribution-painter:locale", i18n.locale);
+  } catch {
+    /* Language persistence is optional. */
+  }
+});
+document.body.dataset.ready = "true";

@@ -1,0 +1,8 @@
+node_modules/
+.venv/
+dist/
+package-lock.json
+LICENSE
+images/*.svg
+test-results/
+playwright-report/

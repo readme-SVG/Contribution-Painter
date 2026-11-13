@@ -1,4 +1,4 @@
-# Severity labels — used by trigger_action.py (7-level scale)
+# Severity labels used by the optional change-analysis workflow.
 - name: "severity: critical"
   color: "B60205"
   description: "Production-breaking, security vulnerabilities, data loss risk"
@@ -59,7 +59,7 @@
 # Workflow labels
 - name: "ai-generated"
   color: "6F42C1"
-  description: "Automatically created by the AI Issue Generator"
+  description: "Automatically created by the optional change-analysis workflow"
 
 - name: "needs triage"
   color: "FBCA04"

@@ -1,224 +1,123 @@
 ![Contribution Painter](https://raw.githubusercontent.com/readme-SVG/Contribution-Painter/main/images/contribution_painter_loop.svg)
 
-> Turn your GitHub contribution graph into pixel-art by generating backdated commits from a web UI.
+> Draw GitHub contribution patterns locally, preview them, and publish backdated commits with explicit review and recoverable progress.
 
 [![License: GPL-3.0](https://img.shields.io/badge/License-GPL--3.0-blue?style=for-the-badge)](LICENSE)
+[![Node.js](https://img.shields.io/badge/Node.js-22.13%2B-339933?style=for-the-badge&logo=node.js&logoColor=white)](package.json)
 [![Python](https://img.shields.io/badge/Python-3.11%2B-3776AB?style=for-the-badge&logo=python&logoColor=white)](requirements.txt)
-[![Frontend](https://img.shields.io/badge/Frontend-Vanilla%20JS-323330?style=for-the-badge&logo=javascript)](js/app.js)
 [![Deploy](https://img.shields.io/badge/Deploy-Vercel-000000?style=for-the-badge&logo=vercel)](vercel.json)
-[![Workflow](https://img.shields.io/badge/GitHub%20Actions-AI%20Issue%20Generator-2088FF?style=for-the-badge&logo=githubactions)](.github/workflows/ai-issue.yml)
 
 https://github.com/user-attachments/assets/67bab512-b74e-492c-903a-81ea353b1811
 
-## Table of Contents
-
-- [Features](#features)
-- [Technology Stack](#technology-stack)
-- [Technical Block](#technical-block)
-  - [Project Structure](#project-structure)
-  - [Key Design Decisions](#key-design-decisions)
-- [Getting Started](#getting-started)
-  - [Prerequisites](#prerequisites)
-  - [Installation](#installation)
-- [Testing](#testing)
-- [Deployment](#deployment)
-- [Usage](#usage)
-- [Configuration](#configuration)
-- [License](#license)
-- [Contacts](#contacts)
+> [!IMPORTANT]
+> Publishing creates real commits in the target repository. Use a disposable repository first, and only publish where backdated contribution history is acceptable. GitHub counts contributions only when its [contribution criteria](https://docs.github.com/en/account-and-profile/setting-up-and-managing-your-github-profile/managing-contribution-settings-on-your-profile/why-are-my-contributions-not-showing-up-on-my-profile) are met; commits on a non-default branch may not appear on your profile.
 
 ## Features
 
-Contribution Painter is built for devs who want deterministic control over contribution heatmaps without touching heavy frameworks.
+- Framework-free yearly heatmap editor with mouse, touch, and keyboard painting.
+- Intensities `0–4`, a random brush, partial random fill, invert, clear, undo, and redo.
+- Independent drafts per year, persisted locally without credentials or connection settings.
+- Commit multipliers `×1/×3/×5/×10` and optional `+0–2` daily spread with live estimates.
+- JSON import/export and accessible SVG preview/download.
+- Review dialog before any GitHub write, cancellable publishing, and checkpoint-based resume.
+- Safe branch updates: existing commits are preserved, concurrent branch changes abort, and force-push is never used.
+- Serial GitHub requests with mutation spacing, timeouts, read-only retries, and rate-limit handling.
+- Twelve locales with validated key and interpolation parity.
+- Optional trusted-change analysis workflow backed by an operator-configured model endpoint.
 
-- Interactive GitHub-style yearly heatmap editor with drag-to-paint controls.
-- Intensity model (`0..4`) + commit multiplier (`x1/x3/x5/x10`) for fast density scaling.
-- Year selection across current, previous, and next years with automatic week-grid alignment.
-- Keyboard shortcuts (`0..4`) for instant palette switching.
-- Graph operations: clear canvas, fill all active cells, invert paint state.
-- Real-time stats: painted days, estimated commit count, and active period boundaries.
-- Direct GitHub REST API push pipeline that writes git blobs, trees, commits, and branch refs.
-- Supports creating a new branch if the target branch does not exist.
-- Multi-language UI via pluggable i18n dictionaries.
-- Progress bar + live logs for long-running commit generation jobs.
-- Vercel-ready static deployment config.
-- AI-driven GitHub Action that analyzes code changes and opens structured issues.
+## Quick start
 
-> [!IMPORTANT]
-> The tool creates real commits in your repository history. Use it only in repos where rewritten contribution history is acceptable.
+The editor is a static site. Node.js is used only for local tooling and the development server.
 
-## Technology Stack
+```bash
+npm ci
+npm run dev
+```
 
-### Core
-- `HTML5` for the single-page UI shell.
-- `CSS3` for GitHub-like contribution graph styling.
-- `Vanilla JavaScript` for editor state, i18n, and GitHub API integration.
+Open <http://localhost:8080>. Python is not required to use the editor.
 
-### Backend Automation
-- `Python 3.11+` for GitHub Action automation script.
-- `PyGithub`, `requests`, `python-dotenv` for GitHub and model API orchestration.
+## Publishing
 
-### DevOps / Infra
-- `GitHub Actions` for automated push/PR analysis.
-- `Vercel` static hosting config for frontend deployment.
+1. Create a fine-grained GitHub token with **Contents: read and write** for the target repository only.
+2. Enter the repository as `owner/name`, a verified account email, an optional author name, and the target branch.
+3. Paint a pattern, choose the multiplier/spread, and select **Apply to GitHub**.
+4. Review the target, branch, dates, and commit count before confirming.
+5. Keep the tab open while publishing. Use **Stop publishing** to cancel; if a run is interrupted, **Resume publishing** continues from the last confirmed checkpoint.
 
-## Technical Block
+The publisher creates one blob and one tree, generates the commit chain, and updates the branch only at the end. A missing branch is created from the repository default branch. Each run writes a small `contribution-painter.txt` artifact so the generated commits have a stable tree. Tokens are kept in memory for the active tab and are cleared from the input after a successful run; they are never written to local storage.
 
-### Project Structure
+## Local data and exports
+
+- Draft key: `contribution-painter:draft:v1`. Only drawings and the selected year are stored.
+- JSON exports use `{ format, version, year, cells }` and contain no credentials.
+- Imports are size-limited and validated against editable dates and intensity levels.
+- SVG export is generated locally and does not create commits.
+
+If local storage is unavailable, editing still works and the UI reports that drafts cannot be saved.
+
+## Development
+
+```bash
+npm run check       # ESLint, Prettier, and unit tests
+npm run build       # static output in dist/
+
+npx playwright install --with-deps chromium
+npm run test:e2e
+```
+
+Browser tests use `PLAYWRIGHT_CHROMIUM_EXECUTABLE` when a custom Chromium binary is required.
+
+Python automation checks:
+
+```bash
+python -m venv .venv
+. .venv/bin/activate
+pip install -r requirements-dev.txt
+ruff check automation tests/python
+ruff format --check automation tests/python
+bandit -q -r automation -c pyproject.toml
+pytest -q
+```
+
+### Project structure
 
 ```text
-.
-├── index.html                     # Main web app entrypoint
-├── css/styles.css               # UI styles
-├── js/
-│   ├── app.js                     # Painter logic + GitHub API workflow
-│   └── i18n/*.js                  # Localization dictionaries
-├── process_event.py               # AI-powered GitHub issue generator workflow script
-├── .github/
-│   ├── workflows/ai-issue.yml     # CI workflow invoking automation script
-│   ├── ISSUE_TEMPLATE/            # Bug/feature templates
-│   └── pull_request_template.md   # PR checklist template
-├── requirements.txt               # Python dependencies for automation
-├── vercel.json                    # Static hosting routing and headers
-└── LICENSE                        # GPL-3.0 license
+index.html              Application shell
+css/styles.css          Responsive UI and graph styles
+js/app.js               UI orchestration and publishing lifecycle
+js/editor.js            Pointer/keyboard grid editor
+js/core/                Calendar, pattern, validation, GitHub client, publisher, portability, SVG
+js/i18n/                Locale dictionaries and loader
+automation/             Optional GitHub change-analysis workflow
+scripts/                Development server and static build
+tests/unit/             Node.js unit tests
+tests/browser/          Playwright browser tests
+tests/python/           Pytest automation tests
+.github/workflows/      Checks, CodeQL, Scorecard, labels, Dependabot, optional analysis
 ```
 
-### Key Design Decisions
+## Optional change analysis
 
-- Frontend is framework-free by design: lower bundle complexity, easier self-hosting, and easy auditability.
-- Commits are generated via low-level Git Data API (`blobs/trees/commits/refs`) to allow exact commit timestamp control.
-- The contribution editor maps to a week-column x weekday-row matrix to mirror GitHub contribution graph semantics.
-- i18n dictionaries are split per locale to keep translation churn isolated and avoid monolithic translation files.
-- CI analysis is decoupled from frontend runtime; automation lives in Python to leverage mature GitHub SDK ergonomics.
+GitHub Models has been retired, so the workflow no longer assumes a hosted inference endpoint. To enable analysis, configure:
 
-## Getting Started
+| Setting           | Kind                | Purpose                                           |
+| ----------------- | ------------------- | ------------------------------------------------- |
+| `MODEL_ENDPOINT`  | Repository variable | HTTPS OpenAI-compatible chat-completions endpoint |
+| `MODEL_NAME`      | Repository variable | Model identifier expected by that endpoint        |
+| `GH_MODELS_TOKEN` | Secret              | Bearer token for the configured endpoint          |
+| `ALLOWED_USER`    | Secret              | Comma-separated list of trusted authors           |
 
-### Prerequisites
-
-Install these tools first:
-
-- `git`
-- `Python 3.11+`
-- `pip`
-- Optional for frontend local dev convenience: `python -m http.server` or any static file server
-- A GitHub personal access token with `repo` scope for writing commits
-
-> [!TIP]
-> For testing safely, create a throwaway repository with a single seed commit (`README.md`) before pushing generated history.
-
-### Installation
-
-```bash
-# 1) Clone repository
-git clone https://github.com/readme-SVG/Contribution-Painter.git
-cd Contribution-Painter
-
-# 2) Set up Python environment (for automation script and local checks)
-python3 -m venv .venv
-source .venv/bin/activate
-pip install -r requirements.txt
-
-# 3) Run a local static server for the frontend
-python3 -m http.server 8080
-
-# 4) Open in browser
-# http://localhost:8080
-```
-
-## Testing
-
-This project is lightweight and does not currently ship with a formal unit/integration test suite. You can still run practical validation checks.
-
-```bash
-# Python syntax check for backend automation
-python3 -m py_compile process_event.py
-
-# Optional: quick dependency sanity
-python3 -m pip check
-
-# Optional: run script help/debug in controlled env
-# (requires env vars like GITHUB_TOKEN, GH_MODELS_TOKEN)
-python3 process_event.py
-```
-
-> [!WARNING]
-> Running `process_event.py` without required environment variables will fail by design.
+The workflow checks out trusted base-branch automation code, rejects fork PRs and unlisted authors before fetching diffs, redacts known secret formats, skips sensitive/generated files, and deduplicates reviews by revision. Missing configuration skips the optional job without failing the repository.
 
 ## Deployment
 
-### Frontend (Vercel)
-
-The repository includes `vercel.json` for static deployment with SPA-style route fallback.
-
-```bash
-# Option A: Vercel CLI
-npm i -g vercel
-vercel
-
-# Option B: connect repo in Vercel dashboard
-# Vercel will serve index.html and route all paths back to it.
-```
-
-### CI/CD (GitHub Actions)
-
-- On pushes to `main` and PR events, `ai-issue.yml` runs the Python analyzer.
-- The workflow checks out code, installs Python, installs dependencies, and executes analysis script.
-
-> [!CAUTION]
-> Ensure secrets (`GH_MODELS_TOKEN`, optional `ALLOWED_USER`) are configured before enabling the workflow in production repos.
-
-## Usage
-
-Use the web UI to paint days and push generated commits.
-
-```text
-# 1. Open app in browser.
-# 2. Fill in:
-#    - GitHub Token (repo scope)
-#    - Repository: <owner>/<repo>
-#    - Email: exactly matching GitHub account email
-#    - Git name and branch (optional, defaults to main)
-# 3. Pick year + intensity + multiplier.
-# 4. Paint graph cells with mouse (or hit keys 0-4 to switch levels).
-# 5. Click "Push to GitHub" and monitor progress/log output.
-```
-
-Example local run:
-
-```bash
-python3 -m http.server 8080
-# then visit http://localhost:8080 and execute push from UI
-```
-
-## Configuration
-
-### UI Runtime Inputs
-
-- `GitHub Token` (`repo` scope required for commit/branch writes)
-- `Repository` (`owner/repo`)
-- `Email` (must match GitHub account email for contribution graph attribution)
-- `Name` (commit author/committer display name)
-- `Branch` (target branch, created automatically when missing)
-- `Commit multiplier` (scales commit volume per painted intensity)
-- `Year` (drives graph date range)
-
-### Workflow Environment Variables (for `process_event.py`)
-
-- `GITHUB_TOKEN` – GitHub Actions token used by workflow.
-- `REPOSITORY` – target repository identifier.
-- `EVENT_NAME` – event type (`push`, `pull_request`, etc.).
-- `COMMIT_SHA` – commit hash for push context.
-- `PR_NUMBER` – PR number when running in PR context.
-- `GH_MODELS_TOKEN` – token for model endpoint authentication.
-- `ALLOWED_USER` – optional actor gate for execution.
+`vercel.json` builds the static site into `dist/` and applies restrictive security headers. The CSP allows inline styles because the grid layout and progress bar are sized dynamically; scripts, frames, objects, and forms remain locked down. Any static host can serve the same `dist/` output.
 
 ## License
 
-Distributed under the `GPL-3.0` license. See [`LICENSE`](LICENSE) for full legal text.
+GPL-3.0-only. See [LICENSE](LICENSE).
 
-## Contacts
-
-## ❤️ Support the Project
+## Support
 
 [![Patreon](https://img.shields.io/badge/Patreon-OstinFCT-f96854?style=flat-square&logo=patreon)](https://www.patreon.com/OstinFCT)
 [![Ko-fi](https://img.shields.io/badge/Ko--fi-fctostin-29abe0?style=flat-square&logo=ko-fi)](https://ko-fi.com/fctostin)
@@ -226,4 +125,4 @@ Distributed under the `GPL-3.0` license. See [`LICENSE`](LICENSE) for full legal
 [![YouTube](https://img.shields.io/badge/YouTube-FCT--Ostin-red?style=flat-square&logo=youtube)](https://www.youtube.com/@FCT-Ostin)
 [![Telegram](https://img.shields.io/badge/Telegram-FCTostin-2ca5e0?style=flat-square&logo=telegram)](https://t.me/FCTostin)
 
-If you find this tool useful, consider leaving a ⭐ on GitHub or supporting the author directly.
+If this tool saved you time, a star on GitHub means a lot.

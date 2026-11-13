@@ -1,0 +1,17 @@
+node_modules/
+.venv/
+dist/
+.env
+.env.*
+!.env.example
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.ruff_cache/
+.coverage
+htmlcov/
+playwright-report/
+test-results/
+.vercel/
+.output/
+.DS_Store
